@@ -34,7 +34,7 @@ const ADAPTER = (() => {
     return String(payload);
   }
   function touch(sym) { ver[sym] = (ver[sym] || 0) + 1; }
-  function trim(m) { if (m.size > 1300) { const ks = [...m.keys()].sort((a, b) => a - b); for (let i = 0; i < m.size - 1100; i++) m.delete(ks[i]); } }
+  function trim(m) { if (m.size > 2400) { const ks = [...m.keys()].sort((a, b) => a - b); for (let i = 0; i < m.size - 2200; i++) m.delete(ks[i]); } }
 
   async function fetchSeries(sym, size) {
     const txt = text(await call("get_time_series", { symbol:sym, interval:"1min", outputsize:size }));
@@ -107,7 +107,7 @@ const ADAPTER = (() => {
     stat = { on:false, text:`Loading ${sel}…` };
     clearInterval(loop);
     lastSeriesMin = Math.floor(Date.now() / MIN) * MIN;          // the full load below counts as this minute's history
-    const ok = await safe(() => fetchSeries(sel, 1000));
+    const ok = await safe(() => fetchSeries(sel, 2000));
     if (ok) await safe(() => fetchPrice(sel));
     lastPriceTry = Date.now();
     if (running) loop = setInterval(step, 500);

@@ -26,13 +26,13 @@ const ADAPTER = (() => {
   }
   const nowS = () => Date.now() + clockOff;
   function bump(id) { ver[id] = (ver[id] || 0) + 1; }
-  function trim(m) { if (m.size > 1300) { const ks = [...m.keys()].sort((a, b) => a - b); for (let i = 0; i < m.size - 1100; i++) m.delete(ks[i]); } }
+  function trim(m) { if (m.size > 2400) { const ks = [...m.keys()].sort((a, b) => a - b); for (let i = 0; i < m.size - 2200; i++) m.delete(ks[i]); } }
   function putBar(id, k) { const m = data[id] || (data[id] = new Map()); m.set(k.t, k); trim(m); bump(id); }
   function noteDelay(eventTime) { const d = nowS() - eventTime; if (d > -2000 && d < 60000) { delays.push(d); if (delays.length > 30) delays.shift(); } }
   const delayMs = () => delays.length ? delays.slice().sort((a, b) => a - b)[Math.floor(delays.length / 2)] : null;
 
-  async function history(id, limit) {
-    const d = await get(`/api/v3/klines?symbol=${id}&interval=1m&limit=${limit}`, 8000);
+  async function history(id, limit, endTime) {
+    const d = await get(`/api/v3/klines?symbol=${id}&interval=1m&limit=${limit}${endTime ? "&endTime=" + endTime : ""}`, 8000);
     if (!d) { histErr = true; return; }
     d.forEach(k => {
       const cur = data[id] && data[id].get(k[0]);
@@ -122,7 +122,8 @@ const ADAPTER = (() => {
       window.addEventListener("focus", wake);
       return list;
     },
-    select(id) { sel = id; subscribeTrades(); history(id, 1000); },
+    select(id) { sel = id; subscribeTrades();
+      history(id, 1000).then(() => { const m = data[id]; if (m && m.size) history(id, 1000, Math.min(...m.keys()) - 1); }); },
     bars(id) { const m = data[id]; return m ? [...m.values()].sort((a, b) => a.t - b.t) : []; },
     version(id) { return ver[id] || 0; },
     scanIds() { return list.map(p => p.id); },

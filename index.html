@@ -99,7 +99,7 @@
       <h3>Scanner – sabse achha pair abhi <span class="mut" id="scanInfo"></span></h3>
       <div id="scanCtl"></div>
       <table><thead><tr><th>Pair</th><th>Session</th><th>15m / 5m</th><th>Setup</th><th class="r">Signal</th></tr></thead><tbody id="scan"></tbody></table>
-      <div class="note">Grade A = sabse saaf setup. Sirf A (ya B) wale pair par trade kariye. Row par click karke pair kholiye.</div>
+      <div class="note">Grade A = sabse saaf setup. % = us pair par us setup ka pichhla record (dhundhla = smart filter skip karega). Row par click karke pair kholiye.</div>
     </div>
 
     <div class="card">
@@ -134,6 +134,8 @@
         <span>Risk / trade</span><span><select id="riskPct" style="padding:2px 5px"><option>1</option><option selected>2</option><option>3</option><option>5</option></select> %</span>
         <span>Payout</span><span><input id="payout" type="number" min="10" max="100" style="width:60px;padding:2px 5px"> %</span>
         <span>Kaun se signal</span><span><select id="minGrade" style="padding:2px 5px"><option value="A">Sirf A (kam, saaf)</option><option value="B" selected>A + B</option><option value="C">A + B + C (zyada, kamzor)</option></select></span>
+        <span>Smart filter</span><span><label><input type="checkbox" id="smart" checked> kamzor setup apne aap skip</label></span>
+        <span>Best pair</span><span><label><input type="checkbox" id="autoSw"> signal wale pair par apne aap jao</label></span>
         <span>Stake</span><b id="stake">--</b>
         <span>Aaj</span><b id="today">--</b>
       </div>
@@ -209,13 +211,13 @@ const ADAPTER = (() => {
   }
   const nowS = () => Date.now() + clockOff;
   function bump(id) { ver[id] = (ver[id] || 0) + 1; }
-  function trim(m) { if (m.size > 1300) { const ks = [...m.keys()].sort((a, b) => a - b); for (let i = 0; i < m.size - 1100; i++) m.delete(ks[i]); } }
+  function trim(m) { if (m.size > 2400) { const ks = [...m.keys()].sort((a, b) => a - b); for (let i = 0; i < m.size - 2200; i++) m.delete(ks[i]); } }
   function putBar(id, k) { const m = data[id] || (data[id] = new Map()); m.set(k.t, k); trim(m); bump(id); }
   function noteDelay(eventTime) { const d = nowS() - eventTime; if (d > -2000 && d < 60000) { delays.push(d); if (delays.length > 30) delays.shift(); } }
   const delayMs = () => delays.length ? delays.slice().sort((a, b) => a - b)[Math.floor(delays.length / 2)] : null;
 
-  async function history(id, limit) {
-    const d = await get(`/api/v3/klines?symbol=${id}&interval=1m&limit=${limit}`, 8000);
+  async function history(id, limit, endTime) {
+    const d = await get(`/api/v3/klines?symbol=${id}&interval=1m&limit=${limit}${endTime ? "&endTime=" + endTime : ""}`, 8000);
     if (!d) { histErr = true; return; }
     d.forEach(k => {
       const cur = data[id] && data[id].get(k[0]);
@@ -305,7 +307,8 @@ const ADAPTER = (() => {
       window.addEventListener("focus", wake);
       return list;
     },
-    select(id) { sel = id; subscribeTrades(); history(id, 1000); },
+    select(id) { sel = id; subscribeTrades();
+      history(id, 1000).then(() => { const m = data[id]; if (m && m.size) history(id, 1000, Math.min(...m.keys()) - 1); }); },
     bars(id) { const m = data[id]; return m ? [...m.values()].sort((a, b) => a.t - b.t) : []; },
     version(id) { return ver[id] || 0; },
     scanIds() { return list.map(p => p.id); },
@@ -353,7 +356,13 @@ function stochArr(c, p = 14) {
 function prep(ones) {
   const c2 = agg(ones, 2), c5 = agg(ones, 5), c15 = agg(ones, 15);
   const cl = c2.map(c => c.c), cl5 = c5.map(c => c.c), cl15 = c15.map(c => c.c);
-  return { c2, c5, c15, e9: ema(cl, 9), e21: ema(cl, 21), r: rsi(cl), st: stochArr(c2),
+  const bbU = [], bbD = [], bbW = [];
+  for (let i = 0; i < cl.length; i++) {
+    const s = cl.slice(Math.max(0, i - 19), i + 1), m = s.reduce((a, b) => a + b, 0) / s.length;
+    const sd = Math.sqrt(s.reduce((a, b) => a + (b - m) ** 2, 0) / s.length);
+    bbU.push(m + 2*sd); bbD.push(m - 2*sd); bbW.push(m ? 4*sd / m : 0);
+  }
+  return { c2, c5, c15, e9: ema(cl, 9), e21: ema(cl, 21), r: rsi(cl), st: stochArr(c2), bbU, bbD, bbW,
            f5: ema(cl5, 9), s5: ema(cl5, 21), f15: ema(cl15, 9), s15: ema(cl15, 21) };
 }
 function htfIdx(cs, mins, T) { const P = mins*60000; let j = cs.length - 1; while (j >= 0 && cs[j].t + P > T) j--; return j; }
@@ -430,6 +439,21 @@ function evalAt(P, i, meta, T) {
     const rsiOk = up ? (r >= 40 && r <= 68) : (r >= 32 && r <= 60);
     const roomAhead = up ? (res - x.c) : (x.c - sup);
     const breakout = up ? x.c > res : x.c < sup;
+    // Bollinger squeeze: bands at their narrowest of the last 30 candles just before this one
+    let minW = Infinity; for (let k = i-30; k < i-1; k++) if (P.bbW[k] < minW) minW = P.bbW[k];
+    const squeeze = P.bbW[i-1] <= minW * 1.15;
+    const outBand = up ? x.c > P.bbU[i] : x.c < P.bbD[i];
+    // RSI divergence: new extreme in price within 3–12 candles but RSI does not confirm it
+    let div = null;
+    for (let k = i-12; k <= i-3; k++) {
+      const priceExt = up ? x.l <= cs[k].l + 0.1*atr : x.h >= cs[k].h - 0.1*atr;
+      const rsiDiv = up ? (r > P.r[k] + 4 && P.r[k] < 40) : (r < P.r[k] - 4 && P.r[k] > 60);
+      if (priceExt && rsiDiv) { div = k; break; }
+    }
+    // round-number level (psychological price)
+    const stepRN = /JPY/.test(meta.label) ? 0.5 : x.c > 500 ? 10 : x.c > 20 ? 0.5 : 0.005;
+    const rn = up ? Math.floor(x.c / stepRN) * stepRN : Math.ceil(x.c / stepRN) * stepRN;
+    const atRound = up ? (x.l <= rn + 0.25*atr && x.c > rn) : (x.h >= rn - 0.25*atr && x.c < rn);
     let s = null;
 
     if (t15 === d && t5 === d && nearEMA && (bodyD > 0.3*range || wickFor > 0.45*range) && rsiOk && wickAg < 0.4*range)
@@ -448,10 +472,23 @@ function evalAt(P, i, meta, T) {
         `Price ${up ? "support" : "resistance"} (${fmt(up ? sup : res)}) par pahunch kar ${up ? "upar" : "neeche"} dhakela gaya`,
         engulf ? `${up ? "Bullish" : "Bearish"} engulfing candle` : `${up ? "Neeche" : "Upar"} lambi wick (pin bar)`,
         up ? `RSI ${r.toFixed(0)} / Stoch ${st.toFixed(0)} – oversold zone` : `RSI ${r.toFixed(0)} / Stoch ${st.toFixed(0)} – overbought zone` ] };
+    else if (squeeze && outBand && t15 !== -d && bodyD > 0.5*range && bodyD > 0.6*atr && (up ? r < 80 : r > 20))
+      s = { setup:"Squeeze breakout", grade: (t5 === d || t15 === d) ? "A" : "B", reasons:[
+        "Bollinger bands bahut sikud gaye the (market ne energy jama ki)",
+        `Ab majboot ${up ? "hari" : "laal"} candle band ke ${up ? "upar" : "neeche"} nikli – nayi chaal shuru`,
+        `Bada trend: 15m ${tName(t15)}, 5m ${tName(t5)}` ] };
+    else if (div !== null && t15 !== -d && (bodyD > 0.2*range || wickFor > 0.45*range))
+      s = { setup:"RSI divergence", grade: (up ? x.l <= sup + 0.3*atr : x.h >= res - 0.3*atr) ? "A" : "B", reasons:[
+        `Price ne naya ${up ? "low" : "high"} banaya par RSI ne nahi (${P.r[div].toFixed(0)} → ${r.toFixed(0)}) – ${up ? "bechne" : "kharidne"} walon ki taakat khatam ho rahi`,
+        bodyD > 0.2*range ? `Running candle ${up ? "hari" : "laal"} – palat raha hai` : `${up ? "Neeche" : "Upar"} lambi wick – rejection` ] };
     else if (t15 === d && t5 === d && bodyD > 0.5*range && pvBodyD > 0 && Math.abs(body) >= Math.abs(pv.c - pv.o)*0.8 && rsiOk)
       s = { setup:"Momentum", grade:"C", reasons:[
         `15m aur 5m trend ${tName(d)}`, `Lagatar 2 majboot ${up ? "hari" : "laal"} candles` ] };
     if (!s) return null;
+    if (atRound && (s.setup === "S/R rejection" || s.setup === "RSI divergence" || s.setup === "Trend pullback")) {
+      s.reasons.push(`Round number ${fmt(rn)} par bounce – bade traders yahan order rakhte hain`);
+      if (s.grade === "B") s.grade = "A";
+    }
 
     // things against this trade
     const ag = [];
@@ -468,7 +505,7 @@ function evalAt(P, i, meta, T) {
   if (cand.length === 2) { out.blocks.push("Dono taraf setup – market confused hai"); out.cand = cand; return out; }
   if (!cand.length) {
     if (t15 === 0) out.against.push("15-min trend sideways hai – saaf direction nahi");
-    out.against.push("Koi saaf trader setup nahi bana (pullback / breakout / rejection)");
+    out.against.push("Koi saaf trader setup nahi bana (pullback / breakout / squeeze / rejection / divergence)");
     return out;
   }
   const s = cand[0];
@@ -480,32 +517,58 @@ function evalAt(P, i, meta, T) {
 // =====================================================================
 // Backtest
 // =====================================================================
+const SMART_MIN = 12;
+const breakEven = () => 1 / (1 + ((+$("payout").value || 80) / 100));
+// walk-forward: a setup is only "taken" if its record BEFORE that moment was not below break-even
 function backtest(P, meta, minGrade) {
-  const cs = P.c2, by = {}, ses = {}; let n = 0, w = 0, ties = 0;
+  const cs = P.c2, by = {}, all = {}, be = breakEven();
+  let n = 0, w = 0, ties = 0, sn = 0, sw = 0;
   for (let i = 40; i < cs.length - 2; i++) {
     const T = cs[i].t + TF, e = evalAt(P, i, meta, T);
-    if (!e.dir || GR[e.grade] < GR[minGrade]) continue;
+    if (!e.dir) continue;
     const nx = cs[i+1], mv = (nx.c - nx.o) * (e.dir === "UP" ? 1 : -1);
     if (mv === 0) { ties++; continue; }
-    const win = mv > 0; n++; if (win) w++;
+    const win = mv > 0;
+    const a = all[e.setup] || (all[e.setup] = { n:0, w:0 });
+    const smartOk = a.n < SMART_MIN || a.w / a.n >= be;
+    a.n++; if (win) a.w++;                                    // learning uses every graded signal
+    if (GR[e.grade] < GR[minGrade]) continue;
+    n++; if (win) w++;
+    if (smartOk) { sn++; if (win) sw++; }
     const b = by[e.setup] || (by[e.setup] = { n:0, w:0 }); b.n++; if (win) b.w++;
     const g = by["Grade " + e.grade] || (by["Grade " + e.grade] = { n:0, w:0 }); g.n++; if (win) g.w++;
   }
   const hours = cs.length ? ((cs[cs.length-1].t - cs[0].t) / 3600000) : 0;
-  return { n, w, ties, by, hours, candles: cs.length };
+  return { n, w, ties, by, all, sn, sw, hours, candles: cs.length };
+}
+const smartStats = {};       // pair -> { all, at }
+function learn(id, force) {
+  const s = smartStats[id];
+  if (s && !force && Date.now() - s.at < 300000) return s;
+  const P = getPrep(id); if (!P || P.c2.length < 80) return null;
+  const bt = backtest(P, META[id], "C");
+  return smartStats[id] = { all: bt.all, at: Date.now() };
+}
+function smartFor(id, setup) {
+  const s = learn(id); const a = s && s.all[setup];
+  if (!a || a.n < SMART_MIN) return { ok:true, n: a ? a.n : 0, wr:null };
+  const wr = a.w / a.n; return { ok: wr >= breakEven(), n:a.n, w:a.w, wr };
 }
 function renderBacktest() {
   const P = getPrep(cur); if (!P || P.c2.length < 60) { $("bt").textContent = "Backtest ke liye data kam hai."; return; }
   const minG = $("minGrade").value, bt = backtest(P, META[cur], minG);
+  smartStats[cur] = { all: bt.all, at: Date.now() };
   const pay = (+$("payout").value || 80) / 100, be = 1/(1+pay);
   const row = (k, v) => { const wr = v.n ? v.w/v.n : 0;
     return `<tr><td>${k}</td><td class="r">${v.n}</td><td class="r ${v.n >= 20 ? (wr > be ? "pos" : "neg") : "mut"}">${v.n ? (wr*100).toFixed(1) + "%" : "--"}</td></tr>`; };
   const wr = bt.n ? bt.w/bt.n : 0;
   $("bt").innerHTML = `<div class="kv"><span>Data</span><b>pichhle ~${bt.hours.toFixed(1)} ghante (${bt.candles} candles)</b>
     <span>Signals</span><b>${bt.n}${bt.ties ? ` (+${bt.ties} barabar)` : ""}</b>
-    <span>Win rate</span><b class="${bt.n >= 20 ? (wr > be ? "pos" : "neg") : ""}">${bt.n ? (wr*100).toFixed(1) + "%" : "--"} <span class="mut">(break-even ${(be*100).toFixed(1)}%)</span></b></div>
+    <span>Win rate</span><b class="${bt.n >= 20 ? (wr > be ? "pos" : "neg") : ""}">${bt.n ? (wr*100).toFixed(1) + "%" : "--"} <span class="mut">(break-even ${(be*100).toFixed(1)}%)</span></b>
+    <span>Smart filter ke saath</span><b class="${bt.sn >= 20 ? (bt.sw/bt.sn > be ? "pos" : "neg") : ""}">${bt.sn ? (bt.sw/bt.sn*100).toFixed(1) + "% (" + bt.sn + " signals)" : "--"}</b></div>
     <table style="margin-top:6px"><tr><th>Setup</th><th class="r">Signals</th><th class="r">Win %</th></tr>
     ${Object.entries(bt.by).sort().map(([k, v]) => row(k, v)).join("")}</table>
+    <div class="note">Smart filter ka backtest "walk-forward" hai: har signal ke waqt sirf usse <b>pehle</b> ka record dekha gaya – aage ka data use nahi hua.</div>
     ${bt.n < 20 ? `<div class="note wrn">Signals bahut kam hain – is number par abhi bharosa mat kariye.</div>` :
       wr <= be ? `<div class="note neg">Is pair par abhi yeh logic break-even se neeche hai – yahan trade mat kariye ya "Sirf A" chuniye.</div>` :
       `<div class="note pos">Is data par break-even se upar. Phir bhi pehle demo par confirm kariye.</div>`}`;
@@ -545,7 +608,23 @@ function riskStop(T) {
 // =====================================================================
 // Main loop
 // =====================================================================
-let lastScan = 0, lastBt = 0, lastLockBeep = null, lastEntryBeep = null, lastResult = null;
+let lastScan = 0, lastBt = 0, lastLockBeep = null, lastEntryBeep = null, lastResult = null, switchedFor = null, switchNote = null;
+function tradeable(id, e) {
+  if (!e || !e.dir || GR[e.grade] < GR[$("minGrade").value]) return false;
+  return !$("smart").checked || smartFor(id, e.setup).ok;
+}
+function bestOther(T) {
+  let best = null;
+  for (const id of ADAPTER.scanIds()) {
+    if (id === cur || !ADAPTER.fresh(id)) continue;
+    const P = getPrep(id); if (!P || P.c2.length < 80 || P.c2[P.c2.length-1].t !== Math.floor(T / TF) * TF) continue;
+    const e = evalAt(P, P.c2.length - 1, META[id], T);
+    if (!tradeable(id, e)) continue;
+    const sm = smartFor(id, e.setup), score = GR[e.grade] * 10 + (sm.wr !== null ? sm.wr * 10 : 5);
+    if (!best || score > best.score) best = { id, score };
+  }
+  return best;
+}
 function tick() {
   const T = ADAPTER.now(), curStart = Math.floor(T / TF) * TF, left = Math.max(0, Math.ceil((curStart + TF - T) / 1000));
   const st = ADAPTER.status(); setStatus(st.on, st.text);
@@ -573,14 +652,25 @@ function tick() {
   const fresh = P && P.c2.length && P.c2[P.c2.length-1].t === curStart && ADAPTER.fresh(cur);
   const ev = P && P.c2.length > 40 ? evalAt(P, P.c2.length - 1, meta, T) : null;
 
+  // ---------- best-pair auto switch, just before the lock ----------
+  if (left <= LOCK + 1 && left > 12 && switchedFor !== curStart && $("autoSw") && $("autoSw").checked && fresh && ev && !tradeable(cur, ev)) {
+    switchedFor = curStart;
+    const best = bestOther(T);
+    if (best) { switchNote = { at:T, from: meta.label, to: META[best.id].label }; selectPair(best.id); return; }
+  }
+
   // ---------- lock signal at 0:30 ----------
   if (left <= LOCK && left > 1 && (!lock || lock.t !== curStart + TF)) {
     if (fresh && ev) {
       const stop = riskStop(T);
       const okGrade = ev.grade && GR[ev.grade] >= GR[$("minGrade").value];
-      lock = { t: curStart + TF, pair: cur, label: meta.label, ev, stop,
-               dir: ev.dir && okGrade && !stop ? ev.dir : null, grade: ev.grade, setup: ev.setup,
-               why: !ev.dir ? null : !okGrade ? `Grade ${ev.grade} – aapki setting (${$("minGrade").value}) se kamzor` : stop ? "Risk manager ne roka" : null };
+      const sm = ev.setup ? smartFor(cur, ev.setup) : { ok:true };
+      const smartBlock = $("smart").checked && !sm.ok;
+      lock = { t: curStart + TF, pair: cur, label: meta.label, ev, stop, sm,
+               dir: ev.dir && okGrade && !stop && !smartBlock ? ev.dir : null, grade: ev.grade, setup: ev.setup,
+               why: !ev.dir ? null : !okGrade ? `Grade ${ev.grade} – aapki setting (${$("minGrade").value}) se kamzor`
+                    : smartBlock ? `Smart filter: is pair par "${ev.setup}" pichhle data me sirf ${(sm.wr*100).toFixed(0)}% sahi raha (${sm.n} signals) – skip`
+                    : stop ? "Risk manager ne roka" : null };
       if (lock.dir) { pendings.push({ pair: cur, label: meta.label, t: lock.t, dir: lock.dir, grade: lock.grade, setup: lock.setup }); beep(lock.dir === "UP" ? 880 : 520, 0.3); }
     } else if (left <= 10) {
       lock = { t: curStart + TF, pair: cur, label: meta.label, dir: null, ev: null, why: "Live data time par nahi aaya – is candle ko chhodiye. " + (ADAPTER.hint ? ADAPTER.hint() : "") };
@@ -602,7 +692,9 @@ function tick() {
       cls = lock.dir === "UP" ? "up" : "dn"; step = left <= 5 ? 3 : 2;
       title = left <= 5 ? `TAIYAR – ${left} second me entry` : "SIGNAL LOCK – agli candle ke liye";
       sig = `${lock.dir === "UP" ? "▲ UP (CALL)" : "▼ DOWN (PUT)"} · Grade ${lock.grade}`;
-      sub = `${lock.label} · ${lock.setup}. Pocket Option me abhi amount <b>${stakeTxt()}</b> aur expiry <b>2:00</b> set kariye. Button <b>${hhmmss(curStart + TF)}</b> (timer 00:00) par dabaiye.`;
+      const smTxt = lock.sm && lock.sm.wr !== null && lock.sm.wr !== undefined ? ` Is pair par yeh setup pichhle data me <b>${(lock.sm.wr*100).toFixed(0)}%</b> sahi raha (${lock.sm.n}).` : "";
+      const swTxt = switchNote && T - switchNote.at < 40000 ? `<b class="wrn">🔄 Pair badla: ${switchNote.from} → ${switchNote.to}. Pocket Option me bhi ${switchNote.to} kholiye!</b><br>` : "";
+      sub = `${swTxt}<b>${lock.label}</b> · ${lock.setup}.${smTxt} Pocket Option me abhi amount <b>${stakeTxt()}</b> aur expiry <b>2:00</b> set kariye. Button <b>${hhmmss(curStart + TF)}</b> (timer 00:00) par dabaiye.`;
       flash = left <= 5;
     } else {
       cls = "no"; step = 2; title = "Agli candle: NO TRADE";
@@ -646,7 +738,8 @@ function renderDetail(ev, lk, meta) {
     <span>RSI / Stoch</span><b>${I.r.toFixed(0)} / ${I.st.toFixed(0)}</b>
     <span>Resistance</span><b>${fmt(I.res)}</b>
     <span>Support</span><b>${fmt(I.sup)}</b>
-    <span>Session</span><b>${I.ses.name}</b>` : "";
+    <span>Session</span><b>${I.ses.name}</b>
+    ${e.setup ? (() => { const sm = smartFor(cur, e.setup); return `<span>Pichhla record</span><b>${sm.wr === null ? `<span class="mut">abhi kam data (${sm.n})</span>` : `<span class="${sm.ok ? "pos" : "neg"}">${e.setup}: ${(sm.wr*100).toFixed(0)}% (${sm.w}/${sm.n})</span>`}</b>`; })() : ""}` : "";
   $("sigWhy").innerHTML = e.blocks.map(b => `<li class="blk">${b}</li>`).join("")
     + e.reasons.map(r => `<li class="ok">${r}</li>`).join("") + e.against.map(r => `<li class="bad">${r}</li>`).join("");
 }
@@ -705,7 +798,8 @@ function scanRowHtml(id, e) {
   const m = META[id]; if (!m) return "";
   if (!e) return `<tr data-id="${id}" class="${id === cur ? "sel" : ""}"><td>${m.label}</td><td colspan="4" class="mut">data…</td></tr>`;
   const t = v => v > 0 ? '<span class="pos">▲</span>' : v < 0 ? '<span class="neg">▼</span>' : '<span class="mut">–</span>';
-  const s = e.dir ? `<span class="pill ${e.dir === "UP" ? "up" : "dn"}">${e.dir} ${e.grade}</span>`
+  const sm = e.setup ? smartFor(id, e.setup) : null;
+  const s = e.dir ? `<span class="pill ${e.dir === "UP" ? "up" : "dn"}" style="${sm && !sm.ok ? "opacity:.45" : ""}">${e.dir} ${e.grade}${sm && sm.wr !== null ? " · " + (sm.wr*100).toFixed(0) + "%" : ""}</span>`
           : e.blocks.length ? `<span class="pill no">RUKO</span>` : `<span class="pill no">—</span>`;
   return `<tr data-id="${id}" class="${id === cur ? "sel" : ""}"><td>${m.label}</td><td class="mut">${e.info.ses ? e.info.ses.name.replace(" + New York", "+NY") : ""}</td>
     <td>${t(e.info.t15)} ${t(e.info.t5)}</td><td class="mut">${e.setup || (e.blocks[0] ? e.blocks[0].slice(0, 28) + "…" : "–")}</td><td class="r">${s}</td></tr>`;
@@ -802,6 +896,9 @@ $("bal").oninput = () => store.set("t_bal", +$("bal").value);
 $("riskPct").onchange = () => store.set("t_risk", +$("riskPct").value);
 $("payout").oninput = () => { store.set("t_payout", +$("payout").value); renderPerf(); lastBt = 0; };
 $("minGrade").onchange = () => { store.set("t_grade", $("minGrade").value); lastBt = 0; };
+$("smart").checked = store.get("t_smart", true); $("autoSw").checked = store.get("t_autosw", false);
+$("smart").onchange = () => store.set("t_smart", $("smart").checked);
+$("autoSw").onchange = () => store.set("t_autosw", $("autoSw").checked);
 
 (async function main() {
   renderPerf();
