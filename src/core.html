@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>/*TITLE*/</title>
+<style>
+  :root { --bg:#0b0f14; --card:#141a22; --line:#2a323d; --txt:#e6edf3; --mut:#8b949e; --up:#22c55e; --dn:#ef4444; --warn:#f59e0b; --blue:#58a6ff; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--txt); }
+  header { display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:8px 12px; border-bottom:1px solid var(--line); }
+  header h1 { font-size:16px; margin:0 6px 0 0; }
+  select, button, input { background:var(--card); color:var(--txt); border:1px solid var(--line); border-radius:6px; padding:6px 9px; font-size:14px; }
+  button { cursor:pointer; }
+  button.go { background:#15803d; border-color:#22c55e; font-weight:700; }
+  button.stop { background:#b91c1c; border-color:#ef4444; font-weight:700; }
+  .mut { color:var(--mut); } .pos { color:var(--up); } .neg { color:var(--dn); } .wrn { color:var(--warn); }
+  #status { font-size:12px; color:var(--mut); }
+  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--dn); margin-right:5px; }
+  .dot.on { background:var(--up); }
+
+  /* phase banner */
+  #phase { margin:10px 12px 0; border-radius:12px; border:2px solid var(--line); background:var(--card);
+           display:grid; grid-template-columns:150px 1fr; align-items:center; gap:8px; padding:10px 14px; transition:background .2s,border-color .2s; }
+  #phTimer { font-size:46px; font-weight:800; font-variant-numeric:tabular-nums; text-align:center; line-height:1; }
+  #phTimerSub { font-size:11px; color:var(--mut); text-align:center; margin-top:4px; }
+  #phTitle { font-size:13px; font-weight:700; letter-spacing:1px; color:var(--mut); text-transform:uppercase; }
+  #phSig { font-size:30px; font-weight:800; margin:2px 0; }
+  #phSub { font-size:14px; line-height:1.45; }
+  #phase.up { border-color:var(--up); background:rgba(34,197,94,.10); } #phase.up #phSig { color:var(--up); }
+  #phase.dn { border-color:var(--dn); background:rgba(239,68,68,.10); } #phase.dn #phSig { color:var(--dn); }
+  #phase.no #phSig { color:var(--warn); }
+  #phase.flash { animation:fl .5s infinite alternate; }
+  @keyframes fl { from { filter:brightness(1); } to { filter:brightness(1.8); } }
+  @media (max-width:600px){ #phase { grid-template-columns:1fr; text-align:center; } #phSig { font-size:26px; } }
+
+  .steps { display:flex; gap:4px; margin:8px 12px 0; font-size:11px; }
+  .steps div { flex:1; text-align:center; padding:4px 2px; border-radius:6px; background:var(--card); color:var(--mut); border:1px solid var(--line); }
+  .steps div.on { background:#1d2b3a; color:var(--txt); border-color:var(--blue); font-weight:700; }
+
+  .wrap { display:grid; grid-template-columns: 1fr 360px; gap:10px; padding:10px 12px; }
+  @media (max-width:950px){ .wrap { grid-template-columns:1fr; } }
+  .col { display:flex; flex-direction:column; gap:10px; min-width:0; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+  h3 { margin:2px 0 8px; font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.6px; display:flex; justify-content:space-between; align-items:center; gap:6px; }
+  canvas { width:100%; display:block; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  td, th { padding:4px 3px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+  th { color:var(--mut); font-weight:600; font-size:12px; }
+  .r { text-align:right; font-variant-numeric:tabular-nums; }
+  .pill { display:inline-block; padding:1px 7px; border-radius:10px; font-weight:700; font-size:11px; white-space:nowrap; }
+  .pill.up { background:rgba(34,197,94,.18); color:var(--up); } .pill.dn { background:rgba(239,68,68,.18); color:var(--dn); }
+  .pill.no { background:#222a35; color:var(--mut); } .pill.g { background:#1d2b3a; color:var(--blue); }
+  ul.rs { margin:4px 0; padding-left:18px; font-size:13px; line-height:1.5; }
+  ul.rs li.ok::marker { content:"✔ "; color:var(--up); } ul.rs li.bad::marker { content:"✖ "; color:var(--dn); } ul.rs li.blk::marker { content:"⛔ "; }
+  .kv { display:grid; grid-template-columns:auto 1fr; gap:3px 10px; font-size:13px; }
+  .kv b { font-variant-numeric:tabular-nums; }
+  .note { font-size:12px; color:var(--mut); line-height:1.45; margin-top:6px; }
+  .warnbox { border:1px solid var(--warn); color:#fcd9a0; background:rgba(245,158,11,.07); border-radius:8px; padding:9px 11px; font-size:12.5px; line-height:1.5; }
+  .errbox { border:1px solid var(--dn); color:#fecaca; background:rgba(239,68,68,.08); border-radius:8px; padding:9px 11px; font-size:13px; margin:10px 12px 0; display:none; }
+  #scan tr[data-id] { cursor:pointer; } #scan tr[data-id]:hover td { background:#1a222d; } #scan tr.sel td { background:#1d2b3a; }
+  .tabs { display:flex; gap:4px; } .tabs button { padding:3px 8px; font-size:12px; } .tabs button.on { border-color:var(--blue); color:var(--blue); }
+  .stopbox { border:2px solid var(--dn); background:rgba(239,68,68,.1); border-radius:8px; padding:8px; font-size:13px; margin-top:6px; display:none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>📈 2-Min Trader · Pocket Option</h1>
+  <input id="filter" placeholder="🔍 pair" size="7">
+  <select id="pair"></select>
+  <span id="adapterControls"></span>
+  <button id="sound">🔔 ON</button>
+  <span id="status"><span class="dot" id="dot"></span><span id="stxt">Loading…</span></span>
+</header>
+<div id="err" class="errbox"></div>
+
+<div id="phase" class="no">
+  <div><div id="phTimer">--:--</div><div id="phTimerSub">running candle me bacha samay</div></div>
+  <div><div id="phTitle">Loading</div><div id="phSig">…</div><div id="phSub"></div></div>
+</div>
+<div class="steps">
+  <div id="st1">1 · Analyse<br>2:00 → 0:31</div>
+  <div id="st2">2 · Signal lock<br>0:30</div>
+  <div id="st3">3 · Taiyar<br>0:05 → 0:00</div>
+  <div id="st4">4 · ENTRY<br>0:00 (5 sec)</div>
+  <div id="st5">5 · Trade chal raha<br>2 min</div>
+</div>
+
+<div class="wrap">
+  <div class="col">
+    <div class="card">
+      <h3><span id="chartTitle">Chart</span><span id="htfBadges"></span></h3>
+      <canvas id="chart" height="360"></canvas>
+      <canvas id="rsi" height="80" style="margin-top:6px"></canvas>
+      <div class="note">Neeli = EMA 9, gulabi = EMA 21, hari/laal dotted = support/resistance (pichli 30 candles). Teer = pichle signal (✔ win / ✖ loss).</div>
+    </div>
+
+    <div class="card">
+      <h3>Scanner – sabse achha pair abhi <span class="mut" id="scanInfo"></span></h3>
+      <div id="scanCtl"></div>
+      <table><thead><tr><th>Pair</th><th>Session</th><th>15m / 5m</th><th>Setup</th><th class="r">Signal</th></tr></thead><tbody id="scan"></tbody></table>
+      <div class="note">Grade A = sabse saaf setup. Sirf A (ya B) wale pair par trade kariye. Row par click karke pair kholiye.</div>
+    </div>
+
+    <div class="card">
+      <h3>Backtest – yeh logic is pair par pichhle data me kitna sahi raha <button id="btRun">↻ Dobara</button></h3>
+      <div id="bt" class="mut">Data aane ke baad apne aap chalega…</div>
+      <div class="note">Backtest band candle ke data par chalta hai (live me signal 30 sec pehle banta hai), isliye yeh ek andaaza hai. Kam signals (20 se kam) par bharosa mat kariye.</div>
+    </div>
+
+    <div class="card">
+      <h3>Trading timing (aapke local time me)</h3>
+      <table id="sessions"></table>
+      <div class="note">Sabse achha samay: <b>London + New York overlap</b>. Asian session me EUR/GBP/USD pairs bahut dheere aur random chalte hain — software us waqt EUR/GBP pairs par NO TRADE dega. Har ghante ke :00 / :30 par badi khabar (news) aa sakti hai — achanak spike dikhe to software khud ruk jayega.</div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card">
+      <h3>Signal detail <span id="gradeBadge"></span></h3>
+      <div class="kv" id="sigKv"></div>
+      <ul class="rs" id="sigWhy"></ul>
+    </div>
+
+    <div class="card">
+      <h3>Chalu trade</h3>
+      <div id="runCard" class="mut">Koi trade nahi chal raha.</div>
+    </div>
+
+    <div class="card">
+      <h3>Risk manager (paisa bachana)</h3>
+      <div class="kv">
+        <span>Balance</span><span><input id="bal" type="number" min="1" style="width:90px;padding:2px 5px"></span>
+        <span>Risk / trade</span><span><select id="riskPct" style="padding:2px 5px"><option>1</option><option selected>2</option><option>3</option><option>5</option></select> %</span>
+        <span>Payout</span><span><input id="payout" type="number" min="10" max="100" style="width:60px;padding:2px 5px"> %</span>
+        <span>Kaun se signal</span><span><select id="minGrade" style="padding:2px 5px"><option value="A">Sirf A (kam, saaf)</option><option value="B" selected>A + B</option><option value="C">A + B + C (zyada, kamzor)</option></select></span>
+        <span>Stake</span><b id="stake">--</b>
+        <span>Aaj</span><b id="today">--</b>
+      </div>
+      <div id="stopBox" class="stopbox"></div>
+      <div class="note">Niyam: har trade me balance ka 1–2% se zyada nahi. <b>Martingale (loss ke baad double) kabhi nahi.</b> Lagatar 3 loss ya din me 10% nuksaan → software us din signal band kar dega.</div>
+    </div>
+
+    <div class="card">
+      <h3>Live result (is device par) <button id="reset">Reset</button></h3>
+      <div class="kv" id="perf"></div>
+      <table id="bySetup" style="margin-top:6px"></table>
+      <table id="journal" style="margin-top:6px"></table>
+    </div>
+
+    <div class="warnbox">
+      ⚠️ <b>Sach baat:</b> yeh software ek trader ke niyam follow karta hai — trend, support/resistance, candle pattern, session aur volatility dekh kar hi signal deta hai, aur shaq ho to NO TRADE. Phir bhi 2-minute candle ka pakka jawab koi nahi de sakta. Pehle <b>demo</b> par 100+ trade chala kar Live result aur Backtest dekhiye. <b>OTC</b> pairs par yeh kaam nahi karega.
+    </div>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// Data adapter (different for free/Binance and claude.ai/Twelve Data)
+// =====================================================================
+/*ADAPTER*/
+
+// =====================================================================
+// Utilities
+// =====================================================================
+const TF = 120000, LOCK = 30, ENTRY_WIN = 6000;
+const $ = id => document.getElementById(id);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+const pad2 = n => String(n).padStart(2, "0");
+const hhmmss = t => { const d = new Date(t); return `${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`; };
+const hhmm = t => { const d = new Date(t); return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`; };
+const fmt = p => !isFinite(p) ? "--" : p.toFixed(p < 10 ? 5 : p < 1000 ? 3 : 2);
+const pipOf = (label, p) => /JPY/.test(label) ? 0.01 : p > 500 ? 1 : p > 20 ? 0.01 : 0.0001;
+let PAIRS = [], META = {};
+let cur = store.get("t_pair", null);
+let soundOn = true;
+
+function setStatus(on, t) { $("dot").className = "dot" + (on ? " on" : ""); $("stxt").textContent = t; }
+function showErr(t) { $("err").style.display = t ? "block" : "none"; $("err").innerHTML = t || ""; }
+
+// =====================================================================
+// Candles & indicators
+// =====================================================================
+function agg(ones, mins) {
+  const P = mins * 60000, out = []; let c = null;
+  for (const k of ones) {
+    const s = Math.floor(k.t / P) * P;
+    if (!c || c.t !== s) { c = { t:s, o:k.o, h:k.h, l:k.l, c:k.c }; out.push(c); }
+    else { if (k.h > c.h) c.h = k.h; if (k.l < c.l) c.l = k.l; c.c = k.c; }
+  }
+  return out;
+}
+const ema = (a, p) => { if (!a.length) return []; const k = 2/(p+1); let e = a[0]; return a.map(x => e = x*k + e*(1-k)); };
+function rsi(a, p = 14) {
+  const out = Array(a.length).fill(50); let g = 0, l = 0;
+  for (let i = 1; i < a.length; i++) {
+    const d = a[i]-a[i-1], up = Math.max(d,0), dn = Math.max(-d,0);
+    if (i <= p) { g += up/p; l += dn/p; } else { g = (g*(p-1)+up)/p; l = (l*(p-1)+dn)/p; }
+    if (i >= p) out[i] = l === 0 ? 100 : 100 - 100/(1 + g/l);
+  }
+  return out;
+}
+function stochArr(c, p = 14) {
+  return c.map((x, i) => { let hh = -Infinity, ll = Infinity;
+    for (let k = Math.max(0, i-p+1); k <= i; k++) { if (c[k].h > hh) hh = c[k].h; if (c[k].l < ll) ll = c[k].l; }
+    return hh === ll ? 50 : (x.c - ll)/(hh - ll)*100; });
+}
+function prep(ones) {
+  const c2 = agg(ones, 2), c5 = agg(ones, 5), c15 = agg(ones, 15);
+  const cl = c2.map(c => c.c), cl5 = c5.map(c => c.c), cl15 = c15.map(c => c.c);
+  return { c2, c5, c15, e9: ema(cl, 9), e21: ema(cl, 21), r: rsi(cl), st: stochArr(c2),
+           f5: ema(cl5, 9), s5: ema(cl5, 21), f15: ema(cl15, 9), s15: ema(cl15, 21) };
+}
+function htfIdx(cs, mins, T) { const P = mins*60000; let j = cs.length - 1; while (j >= 0 && cs[j].t + P > T) j--; return j; }
+function trendAt(cs, f, s, j) {
+  if (j < 22) return 0; const c = cs[j].c;
+  if (f[j] > s[j] && c > s[j]) return 1;
+  if (f[j] < s[j] && c < s[j]) return -1;
+  return 0;
+}
+
+// =====================================================================
+// Trading sessions (timing)
+// =====================================================================
+const SESS = [
+  { name:"Asian (Tokyo)", from:0, to:7, q:"Dheema – sirf JPY/AUD/NZD" },
+  { name:"London", from:7, to:12, q:"Achha" },
+  { name:"London + New York overlap", from:12, to:16, q:"⭐ Sabse achha" },
+  { name:"New York", from:16, to:21, q:"Theek" },
+  { name:"Rollover / band", from:21, to:24, q:"⛔ Trade mat kariye (21–22)" },
+];
+function sessionOf(T, meta) {
+  const d = new Date(T), h = d.getUTCHours(), wd = d.getUTCDay();
+  if (!meta.fx) return { name:"Crypto 24x7", block:null };
+  if (wd === 6 || (wd === 0 && h < 21) || (wd === 5 && h >= 21))
+    return { name:"Weekend", block:"Asli forex market BAND hai (weekend). Pocket Option par sirf OTC chalta hai – trade mat kariye." };
+  if (h === 21) return { name:"Rollover", block:"Rollover time – spread bahut zyada hota hai, 1 ghanta rukiye." };
+  const s = SESS.find(s => h >= s.from && h < s.to) || SESS[0];
+  const asianOk = /JPY|AUD|NZD|CNH|SGD|HKD/.test(meta.label);
+  if ((s.from === 0 || h >= 22) && !asianOk)
+    return { name:"Asian", block:`Asian session – ${meta.label} abhi bahut dheema/random hai. London session (${hhmm(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 7))}) se trade kariye.` };
+  return { name: h >= 22 ? "Asian (Sydney)" : s.name, block:null };
+}
+function renderSessions(T) {
+  const d = new Date(T), base = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  const h = d.getUTCHours();
+  $("sessions").innerHTML = "<tr><th>Session</th><th>Aapka time</th><th>Quality</th></tr>" + SESS.map(s =>
+    `<tr style="${h >= s.from && h < s.to ? "background:#1d2b3a;font-weight:700" : ""}"><td>${h >= s.from && h < s.to ? "▶ " : ""}${s.name}</td>
+     <td>${hhmm(base + s.from*3600000)} – ${hhmm(base + (s.to % 24)*3600000)}</td><td>${s.q}</td></tr>`).join("");
+}
+
+// =====================================================================
+// THE TRADER ENGINE
+//  Evaluates candle i (running at T-30s, or closed in backtest) and says
+//  what the NEXT 2-min candle should do, using a trader's rules.
+// =====================================================================
+const GR = { A:3, B:2, C:1 };
+function evalAt(P, i, meta, T) {
+  const cs = P.c2;
+  const out = { dir:null, grade:null, setup:null, reasons:[], against:[], blocks:[], info:{} };
+  if (i < 40) { out.blocks.push("Data kam hai – thoda intezaar kariye"); return out; }
+  const x = cs[i], pv = cs[i-1];
+  const range = Math.max(x.h - x.l, 1e-12), body = x.c - x.o;
+  const upW = x.h - Math.max(x.o, x.c), dnW = Math.min(x.o, x.c) - x.l;
+  let atr = 0; for (let k = i-14; k < i; k++) atr += cs[k].h - cs[k].l; atr /= 14;
+  let res = -Infinity, sup = Infinity; for (let k = i-30; k < i; k++) { if (cs[k].h > res) res = cs[k].h; if (cs[k].l < sup) sup = cs[k].l; }
+  const j5 = htfIdx(P.c5, 5, T), j15 = htfIdx(P.c15, 15, T);
+  const t5 = trendAt(P.c5, P.f5, P.s5, j5), t15 = trendAt(P.c15, P.f15, P.s15, j15);
+  const e21 = P.e21[i], e9 = P.e9[i], r = P.r[i], st = P.st[i], stp = P.st[i-1];
+  const ses = sessionOf(T, meta);
+  out.info = { t5, t15, r, st, atr, res, sup, ses, e9, e21, price:x.c };
+
+  if (ses.block) out.blocks.push(ses.block);
+  if (atr / x.c < (meta.fx ? 0.00004 : 0.0002)) out.blocks.push("Market bahut flat hai (volatility kam) – aisi jagah result random hota hai");
+  if (atr > 0 && range > 3 * atr) out.blocks.push("Achanak bada spike (shayad news) – 2–3 candle rukiye");
+  if (j15 < 22) out.blocks.push("15-min trend ke liye abhi data kam hai");
+
+  const tName = t => t > 0 ? "UP" : t < 0 ? "DOWN" : "sideways";
+  function setupFor(d) {
+    const up = d === 1, bodyD = body * d;
+    const wickFor = up ? dnW : upW, wickAg = up ? upW : dnW;
+    const pvBodyD = (pv.c - pv.o) * d;
+    const engulf = pvBodyD < 0 && bodyD > 0 && (up ? (x.c > pv.o && x.o <= pv.c) : (x.c < pv.o && x.o >= pv.c));
+    const nearEMA = up ? (Math.min(x.l, pv.l) <= e21 + 0.25*atr && x.c > e21) : (Math.max(x.h, pv.h) >= e21 - 0.25*atr && x.c < e21);
+    const rsiOk = up ? (r >= 40 && r <= 68) : (r >= 32 && r <= 60);
+    const roomAhead = up ? (res - x.c) : (x.c - sup);
+    const breakout = up ? x.c > res : x.c < sup;
+    let s = null;
+
+    if (t15 === d && t5 === d && nearEMA && (bodyD > 0.3*range || wickFor > 0.45*range) && rsiOk && wickAg < 0.4*range)
+      s = { setup:"Trend pullback", grade:"A", reasons:[
+        `15-min aur 5-min dono trend ${tName(d)} hain`,
+        `Price EMA 21 tak wapas aaya (pullback) aur wahan se ${up ? "upar" : "neeche"} mud raha hai`,
+        bodyD > 0.3*range ? `Running candle ${up ? "hari" : "laal"} aur majboot hai` : `${up ? "Neeche" : "Upar"} lambi wick – rejection`,
+        `RSI ${r.toFixed(0)} – abhi ${up ? "overbought" : "oversold"} nahi` ] };
+    else if (breakout && (t15 === d || t5 === d) && t15 !== -d && bodyD > 0.55*range && bodyD > 0.7*atr && (up ? r < 78 : r > 22))
+      s = { setup:"Breakout", grade: (t15 === d && t5 === d) ? "A" : "B", reasons:[
+        `Price ne ${up ? "resistance" : "support"} (${fmt(up ? res : sup)}) tod diya`,
+        `Majboot ${up ? "hari" : "laal"} candle (body ATR se badi) – asli breakout`,
+        `Bada trend saath hai (15m ${tName(t15)}, 5m ${tName(t5)})` ] };
+    else if (t15 !== -d && (up ? x.l <= sup + 0.3*atr : x.h >= res - 0.3*atr) && (wickFor > 0.5*range || engulf) && (up ? (r < 42 || st < 25) : (r > 58 || st > 75)))
+      s = { setup:"S/R rejection", grade: t15 === d ? "A" : "B", reasons:[
+        `Price ${up ? "support" : "resistance"} (${fmt(up ? sup : res)}) par pahunch kar ${up ? "upar" : "neeche"} dhakela gaya`,
+        engulf ? `${up ? "Bullish" : "Bearish"} engulfing candle` : `${up ? "Neeche" : "Upar"} lambi wick (pin bar)`,
+        up ? `RSI ${r.toFixed(0)} / Stoch ${st.toFixed(0)} – oversold zone` : `RSI ${r.toFixed(0)} / Stoch ${st.toFixed(0)} – overbought zone` ] };
+    else if (t15 === d && t5 === d && bodyD > 0.5*range && pvBodyD > 0 && Math.abs(body) >= Math.abs(pv.c - pv.o)*0.8 && rsiOk)
+      s = { setup:"Momentum", grade:"C", reasons:[
+        `15m aur 5m trend ${tName(d)}`, `Lagatar 2 majboot ${up ? "hari" : "laal"} candles` ] };
+    if (!s) return null;
+
+    // things against this trade
+    const ag = [];
+    if (!breakout && roomAhead < 0.5*atr) ag.push(`${up ? "Resistance" : "Support"} bilkul saamne hai (${fmt(up ? res : sup)})`);
+    if (wickAg > 0.4*range) ag.push(`${up ? "Upar" : "Neeche"} lambi wick – ulta dabaav`);
+    if (up ? (st > 85 && st < stp) : (st < 15 && st > stp)) ag.push("Stochastic extreme se mud raha hai");
+    if (t15 === 0) ag.push("15-min trend saaf nahi (sideways)");
+    if (ag.length >= 2) s.grade = s.grade === "A" ? "B" : "C";
+    else if (ag.length === 1 && s.grade === "A" && s.setup !== "Breakout") s.grade = "B";
+    s.dir = up ? "UP" : "DOWN"; s.against = ag;
+    return s;
+  }
+  const cand = [setupFor(1), setupFor(-1)].filter(Boolean);
+  if (cand.length === 2) { out.blocks.push("Dono taraf setup – market confused hai"); out.cand = cand; return out; }
+  if (!cand.length) {
+    if (t15 === 0) out.against.push("15-min trend sideways hai – saaf direction nahi");
+    out.against.push("Koi saaf trader setup nahi bana (pullback / breakout / rejection)");
+    return out;
+  }
+  const s = cand[0];
+  Object.assign(out, { grade:s.grade, setup:s.setup, reasons:s.reasons, against:s.against, cand:s });
+  if (!out.blocks.length) out.dir = s.dir;
+  return out;
+}
+
+// =====================================================================
+// Backtest
+// =====================================================================
+function backtest(P, meta, minGrade) {
+  const cs = P.c2, by = {}, ses = {}; let n = 0, w = 0, ties = 0;
+  for (let i = 40; i < cs.length - 2; i++) {
+    const T = cs[i].t + TF, e = evalAt(P, i, meta, T);
+    if (!e.dir || GR[e.grade] < GR[minGrade]) continue;
+    const nx = cs[i+1], mv = (nx.c - nx.o) * (e.dir === "UP" ? 1 : -1);
+    if (mv === 0) { ties++; continue; }
+    const win = mv > 0; n++; if (win) w++;
+    const b = by[e.setup] || (by[e.setup] = { n:0, w:0 }); b.n++; if (win) b.w++;
+    const g = by["Grade " + e.grade] || (by["Grade " + e.grade] = { n:0, w:0 }); g.n++; if (win) g.w++;
+  }
+  const hours = cs.length ? ((cs[cs.length-1].t - cs[0].t) / 3600000) : 0;
+  return { n, w, ties, by, hours, candles: cs.length };
+}
+function renderBacktest() {
+  const P = getPrep(cur); if (!P || P.c2.length < 60) { $("bt").textContent = "Backtest ke liye data kam hai."; return; }
+  const minG = $("minGrade").value, bt = backtest(P, META[cur], minG);
+  const pay = (+$("payout").value || 80) / 100, be = 1/(1+pay);
+  const row = (k, v) => { const wr = v.n ? v.w/v.n : 0;
+    return `<tr><td>${k}</td><td class="r">${v.n}</td><td class="r ${v.n >= 20 ? (wr > be ? "pos" : "neg") : "mut"}">${v.n ? (wr*100).toFixed(1) + "%" : "--"}</td></tr>`; };
+  const wr = bt.n ? bt.w/bt.n : 0;
+  $("bt").innerHTML = `<div class="kv"><span>Data</span><b>pichhle ~${bt.hours.toFixed(1)} ghante (${bt.candles} candles)</b>
+    <span>Signals</span><b>${bt.n}${bt.ties ? ` (+${bt.ties} barabar)` : ""}</b>
+    <span>Win rate</span><b class="${bt.n >= 20 ? (wr > be ? "pos" : "neg") : ""}">${bt.n ? (wr*100).toFixed(1) + "%" : "--"} <span class="mut">(break-even ${(be*100).toFixed(1)}%)</span></b></div>
+    <table style="margin-top:6px"><tr><th>Setup</th><th class="r">Signals</th><th class="r">Win %</th></tr>
+    ${Object.entries(bt.by).sort().map(([k, v]) => row(k, v)).join("")}</table>
+    ${bt.n < 20 ? `<div class="note wrn">Signals bahut kam hain – is number par abhi bharosa mat kariye.</div>` :
+      wr <= be ? `<div class="note neg">Is pair par abhi yeh logic break-even se neeche hai – yahan trade mat kariye ya "Sirf A" chuniye.</div>` :
+      `<div class="note pos">Is data par break-even se upar. Phir bhi pehle demo par confirm kariye.</div>`}`;
+}
+
+// =====================================================================
+// State: journal, pending trades, risk
+// =====================================================================
+let journal = store.get("t_journal", []);           // {pair,label,t,dir,grade,setup,entry,close,res}
+let pendings = [];                                   // signals waiting for their candle
+let lock = null;                                     // locked signal for next candle
+let override = null;                                 // day when user overrode the stop
+const prepCache = {};
+function getPrep(id) {
+  const v = ADAPTER.version(id), c = prepCache[id];
+  if (c && c.v === v) return c.P;
+  const bars = ADAPTER.bars(id); if (!bars.length) return null;
+  const P = prep(bars); prepCache[id] = { v, P }; return P;
+}
+const dayKey = t => new Date(t).toDateString();
+function todayStats(T) {
+  const today = journal.filter(j => dayKey(j.t) === dayKey(T) && j.res !== "T");
+  let streak = 0; for (let k = 0; k < today.length && today[k].res === "L"; k++) streak++;
+  const w = today.filter(j => j.res === "W").length, l = today.filter(j => j.res === "L").length;
+  const pay = (+$("payout").value || 80) / 100, risk = +$("riskPct").value;
+  const netPct = (w*pay - l) * risk;
+  return { w, l, streak, netPct };
+}
+function riskStop(T) {
+  if (override === dayKey(T)) return null;
+  const s = todayStats(T);
+  if (s.streak >= 3) return `Lagatar ${s.streak} loss. Professional trader yahan ruk jata hai – gussa/revenge trade sabse bada nuksaan karta hai. Aaj ke liye band.`;
+  if (s.netPct <= -10) return `Aaj ${s.netPct.toFixed(1)}% nuksaan ho chuka (limit 10%). Aaj ke liye band, kal fresh dimaag se.`;
+  return null;
+}
+
+// =====================================================================
+// Main loop
+// =====================================================================
+let lastScan = 0, lastBt = 0, lastLockBeep = null, lastEntryBeep = null, lastResult = null;
+function tick() {
+  const T = ADAPTER.now(), curStart = Math.floor(T / TF) * TF, left = Math.max(0, Math.ceil((curStart + TF - T) / 1000));
+  const st = ADAPTER.status(); setStatus(st.on, st.text);
+  if (ADAPTER.prefetch && left <= 34 && left > LOCK) ADAPTER.prefetch(cur, curStart);
+  renderSessions(T);
+  if (!cur || !META[cur]) return;
+  const meta = META[cur], P = getPrep(cur);
+  $("phTimer").textContent = `${pad2(Math.floor(left/60))}:${pad2(left%60)}`;
+
+  // ---------- settle finished trades ----------
+  for (const p of pendings.slice()) {
+    if (T < p.t + TF + 2500) continue;
+    const PP = getPrep(p.pair), c = PP && PP.c2.find(c => c.t === p.t);
+    if (c && (T < p.t + TF + 60000) && !(PP.c2[PP.c2.length-1].t > p.t)) continue;   // wait for the close to arrive
+    pendings.splice(pendings.indexOf(p), 1);
+    if (!c) continue;
+    const mv = (c.c - c.o) * (p.dir === "UP" ? 1 : -1);
+    const res = mv > 0 ? "W" : mv < 0 ? "L" : "T";
+    journal.unshift({ ...p, entry:c.o, close:c.c, res }); journal = journal.slice(0, 500); store.set("t_journal", journal);
+    lastResult = { ...p, res, at:T };
+    beep(res === "W" ? 1046 : 330, 0.25);
+    renderPerf();
+  }
+
+  const fresh = P && P.c2.length && P.c2[P.c2.length-1].t === curStart && ADAPTER.fresh(cur);
+  const ev = P && P.c2.length > 40 ? evalAt(P, P.c2.length - 1, meta, T) : null;
+
+  // ---------- lock signal at 0:30 ----------
+  if (left <= LOCK && left > 1 && (!lock || lock.t !== curStart + TF)) {
+    if (fresh && ev) {
+      const stop = riskStop(T);
+      const okGrade = ev.grade && GR[ev.grade] >= GR[$("minGrade").value];
+      lock = { t: curStart + TF, pair: cur, label: meta.label, ev, stop,
+               dir: ev.dir && okGrade && !stop ? ev.dir : null, grade: ev.grade, setup: ev.setup,
+               why: !ev.dir ? null : !okGrade ? `Grade ${ev.grade} – aapki setting (${$("minGrade").value}) se kamzor` : stop ? "Risk manager ne roka" : null };
+      if (lock.dir) { pendings.push({ pair: cur, label: meta.label, t: lock.t, dir: lock.dir, grade: lock.grade, setup: lock.setup }); beep(lock.dir === "UP" ? 880 : 520, 0.3); }
+    } else if (left <= 10) {
+      lock = { t: curStart + TF, pair: cur, label: meta.label, dir: null, ev: null, why: "Live data time par nahi aaya – is candle ko chhodiye. " + (ADAPTER.hint ? ADAPTER.hint() : "") };
+    }
+  }
+
+  // ---------- phase banner ----------
+  const ph = $("phase"); let cls = "no", title = "", sig = "", sub = "", step = 1, flash = false;
+  const lockedForThis = lock && lock.t === curStart && lock.dir;      // signal for the candle now running
+  const lockedNext = lock && lock.t === curStart + TF;                  // signal for the next candle
+  const sinceOpen = T - curStart;
+  if (lockedForThis && sinceOpen < ENTRY_WIN) {
+    step = 4; flash = true; cls = lock.dir === "UP" ? "up" : "dn";
+    title = "ABHI ENTRY KARIYE"; sig = lock.dir === "UP" ? "▲ CALL / UP — ABHI!" : "▼ PUT / DOWN — ABHI!";
+    sub = `${lock.label} · Expiry <b>2 minute</b> (${hhmmss(curStart + TF)} tak). Late ho gaye (5 sec se zyada) to yeh trade chhod dijiye.`;
+    if (lastEntryBeep !== curStart) { lastEntryBeep = curStart; beep(1200, 0.15); setTimeout(() => beep(1200, 0.15), 200); }
+  } else if (lockedNext) {
+    if (lock.dir) {
+      cls = lock.dir === "UP" ? "up" : "dn"; step = left <= 5 ? 3 : 2;
+      title = left <= 5 ? `TAIYAR – ${left} second me entry` : "SIGNAL LOCK – agli candle ke liye";
+      sig = `${lock.dir === "UP" ? "▲ UP (CALL)" : "▼ DOWN (PUT)"} · Grade ${lock.grade}`;
+      sub = `${lock.label} · ${lock.setup}. Pocket Option me abhi amount <b>${stakeTxt()}</b> aur expiry <b>2:00</b> set kariye. Button <b>${hhmmss(curStart + TF)}</b> (timer 00:00) par dabaiye.`;
+      flash = left <= 5;
+    } else {
+      cls = "no"; step = 2; title = "Agli candle: NO TRADE";
+      sig = "✋ NO TRADE";
+      sub = lock.why || (lock.stop ? lock.stop : lock.ev && lock.ev.blocks.length ? lock.ev.blocks[0] : "Koi saaf setup nahi – paisa bachana bhi trading hai.");
+    }
+  } else {
+    step = 1; title = left <= LOCK ? "Signal ke liye taaza data ka intezaar…" : "ANALYSE – signal 0:30 par aayega";
+    if (!P || !P.c2.length) { sig = "Data load ho raha hai…"; }
+    else if (!fresh) { sig = "Live data ka intezaar…"; sub = ADAPTER.hint ? ADAPTER.hint() : ""; }
+    else if (ev && ev.blocks.length) { sig = "Abhi trade ka mahaul nahi"; sub = ev.blocks[0]; }
+    else if (ev && ev.grade) { sig = `Setup ban raha hai: ${ev.cand.dir} (${ev.setup}, ${ev.grade})`; sub = "Abhi trade mat kariye – 0:30 par final signal lock hoga."; }
+    else { sig = "Koi setup nahi ban raha"; sub = "Intezaar kariye. Scanner me dusra pair dekhiye."; }
+    const runningTrade = pendings.find(p => p.t === curStart);
+    if (runningTrade) step = 5;
+  }
+  ph.className = cls + (flash ? " flash" : "");
+  $("phTitle").textContent = title; $("phSig").textContent = sig; $("phSub").innerHTML = sub;
+  for (let k = 1; k <= 5; k++) $("st" + k).className = k === step ? "on" : "";
+  $("phTimer").style.color = left <= 5 ? "var(--warn)" : "";
+
+  renderDetail(ev, lockedNext ? lock : null, meta);
+  renderRunning(T, curStart);
+  renderRisk(T);
+  if (P && P.c2.length > 30) draw(P, ev, meta);
+  if (T - lastScan > 3000) { lastScan = T; renderScanner(T); }
+  if (T - lastBt > 60000 && P && P.c2.length > 60) { lastBt = T; renderBacktest(); }
+}
+
+function stakeTxt() { const b = +$("bal").value, r = +$("riskPct").value; return b ? (b * r / 100).toFixed(2) : `balance ka ${r}%`; }
+
+function renderDetail(ev, lk, meta) {
+  const e = lk && lk.ev ? lk.ev : ev;
+  if (!e) { $("sigKv").innerHTML = ""; $("sigWhy").innerHTML = ""; $("gradeBadge").innerHTML = ""; return; }
+  const I = e.info, tn = t => t > 0 ? '<span class="pos">UP ▲</span>' : t < 0 ? '<span class="neg">DOWN ▼</span>' : '<span class="mut">sideways</span>';
+  $("gradeBadge").innerHTML = e.grade ? `<span class="pill g">${lk ? "LOCKED · " : "LIVE · "}${e.setup} · ${e.grade}</span>` : `<span class="pill no">${lk ? "LOCKED" : "LIVE"}</span>`;
+  $("sigKv").innerHTML = I.price ? `
+    <span>Pair</span><b>${meta.label} · ${fmt(I.price)}</b>
+    <span>15-min trend</span><b>${tn(I.t15)}</b>
+    <span>5-min trend</span><b>${tn(I.t5)}</b>
+    <span>RSI / Stoch</span><b>${I.r.toFixed(0)} / ${I.st.toFixed(0)}</b>
+    <span>Resistance</span><b>${fmt(I.res)}</b>
+    <span>Support</span><b>${fmt(I.sup)}</b>
+    <span>Session</span><b>${I.ses.name}</b>` : "";
+  $("sigWhy").innerHTML = e.blocks.map(b => `<li class="blk">${b}</li>`).join("")
+    + e.reasons.map(r => `<li class="ok">${r}</li>`).join("") + e.against.map(r => `<li class="bad">${r}</li>`).join("");
+}
+
+function renderRunning(T, curStart) {
+  const p = pendings.find(p => p.t === curStart);
+  let h = "";
+  if (p) {
+    const PP = getPrep(p.pair), c = PP && PP.c2.find(c => c.t === p.t);
+    if (c) {
+      const pip = pipOf(p.label, c.o), mv = (c.c - c.o) * (p.dir === "UP" ? 1 : -1), pips = mv / pip;
+      const left = Math.ceil((p.t + TF - T) / 1000);
+      h = `<div class="kv"><span>Trade</span><b>${p.label} · <span class="${p.dir === "UP" ? "pos" : "neg"}">${p.dir}</span> · ${p.setup} (${p.grade})</b>
+        <span>Entry (candle open)</span><b>${fmt(c.o)}</b><span>Abhi</span><b>${fmt(c.c)}</b>
+        <span>Haal</span><b class="${mv > 0 ? "pos" : mv < 0 ? "neg" : "wrn"}">${mv > 0 ? "✔ Abhi WIN me" : mv < 0 ? "✖ Abhi LOSS me" : "Barabar"} (${pips >= 0 ? "+" : ""}${pips.toFixed(1)} pip)</b>
+        <span>Bacha</span><b>${pad2(Math.floor(left/60))}:${pad2(left%60)}</b></div>
+        <div class="note">Trade ke beech me ghabra kar kuch mat kariye – expiry tak rukiye.</div>`;
+    }
+  }
+  if (lastResult && T - lastResult.at < 20000)
+    h += `<div style="font-size:22px;font-weight:800;margin-top:6px" class="${lastResult.res === "W" ? "pos" : lastResult.res === "L" ? "neg" : "wrn"}">
+      ${lastResult.res === "W" ? "✅ WIN" : lastResult.res === "L" ? "❌ LOSS" : "➖ BARABAR (refund)"} · ${lastResult.label} ${lastResult.dir}</div>`;
+  $("runCard").innerHTML = h || '<span class="mut">Koi trade nahi chal raha.</span>';
+}
+
+function renderRisk(T) {
+  const s = todayStats(T);
+  $("stake").textContent = stakeTxt();
+  $("today").innerHTML = `${s.w} W / ${s.l} L · <span class="${s.netPct >= 0 ? "pos" : "neg"}">${s.netPct >= 0 ? "+" : ""}${s.netPct.toFixed(1)}%</span>${s.streak ? ` · ${s.streak} loss lagatar` : ""}`;
+  const stop = riskStop(T), box = $("stopBox");
+  if (stop) { box.style.display = "block"; box.innerHTML = `⛔ <b>STOP:</b> ${stop}<br><button id="ovr" style="margin-top:6px;font-size:12px">Phir bhi signal dikhao (sirf demo ke liye)</button>`;
+    $("ovr").onclick = () => { override = dayKey(T); }; }
+  else box.style.display = "none";
+}
+
+function renderPerf() {
+  const done = journal.filter(j => j.res !== "T"), w = done.filter(j => j.res === "W").length;
+  const pay = (+$("payout").value || 80) / 100, be = 1/(1+pay), wr = done.length ? w/done.length : 0;
+  $("perf").innerHTML = `<span>Trades</span><b>${done.length} (${w} W / ${done.length - w} L)</b>
+    <span>Win rate</span><b class="${done.length >= 30 ? (wr > be ? "pos" : "neg") : ""}">${done.length ? (wr*100).toFixed(1) + "%" : "--"}</b>
+    <span>Break-even</span><b>${(be*100).toFixed(1)}%</b>
+    <span>Faisla</span><b>${done.length < 100 ? `<span class="mut">100 trade ke baad (${done.length}/100)</span>` : wr > be ? '<span class="pos">Break-even se upar</span>' : '<span class="neg">Neeche – real paisa mat lagaiye</span>'}</b>`;
+  const by = {}; done.forEach(j => { const b = by[j.setup] || (by[j.setup] = { n:0, w:0 }); b.n++; if (j.res === "W") b.w++; });
+  $("bySetup").innerHTML = Object.keys(by).length ? "<tr><th>Setup</th><th class='r'>Trades</th><th class='r'>Win %</th></tr>" +
+    Object.entries(by).map(([k, v]) => `<tr><td>${k}</td><td class="r">${v.n}</td><td class="r">${(v.w/v.n*100).toFixed(0)}%</td></tr>`).join("") : "";
+  $("journal").innerHTML = journal.slice(0, 12).map(j => `<tr><td class="mut">${hhmm(j.t)}</td><td>${j.label}</td>
+    <td><span class="pill ${j.dir === "UP" ? "up" : "dn"}">${j.dir}</span></td><td class="mut">${j.setup} ${j.grade}</td>
+    <td class="r ${j.res === "W" ? "pos" : j.res === "L" ? "neg" : "wrn"}">${j.res === "W" ? "WIN" : j.res === "L" ? "LOSS" : "TIE"}</td></tr>`).join("");
+}
+
+// =====================================================================
+// Scanner
+// =====================================================================
+const scanRows = {};
+function scanRowHtml(id, e) {
+  const m = META[id]; if (!m) return "";
+  if (!e) return `<tr data-id="${id}" class="${id === cur ? "sel" : ""}"><td>${m.label}</td><td colspan="4" class="mut">data…</td></tr>`;
+  const t = v => v > 0 ? '<span class="pos">▲</span>' : v < 0 ? '<span class="neg">▼</span>' : '<span class="mut">–</span>';
+  const s = e.dir ? `<span class="pill ${e.dir === "UP" ? "up" : "dn"}">${e.dir} ${e.grade}</span>`
+          : e.blocks.length ? `<span class="pill no">RUKO</span>` : `<span class="pill no">—</span>`;
+  return `<tr data-id="${id}" class="${id === cur ? "sel" : ""}"><td>${m.label}</td><td class="mut">${e.info.ses ? e.info.ses.name.replace(" + New York", "+NY") : ""}</td>
+    <td>${t(e.info.t15)} ${t(e.info.t5)}</td><td class="mut">${e.setup || (e.blocks[0] ? e.blocks[0].slice(0, 28) + "…" : "–")}</td><td class="r">${s}</td></tr>`;
+}
+function renderScanner(T) {
+  const ids = ADAPTER.scanIds();
+  if (!ids.length) return;
+  const rows = ids.map(id => { const P = getPrep(id); const e = P && P.c2.length > 40 ? evalAt(P, P.c2.length - 1, META[id], T) : null;
+    return { id, e, rank: e ? (e.dir ? 10 + GR[e.grade] : e.grade ? 5 : e.blocks.length ? 0 : 2) : -1 }; });
+  rows.sort((a, b) => b.rank - a.rank);
+  $("scan").innerHTML = rows.map(r => scanRowHtml(r.id, r.e)).join("");
+  $("scanInfo").textContent = `${ids.length} pairs live`;
+}
+$("scan").onclick = e => { const tr = e.target.closest("tr[data-id]"); if (tr) selectPair(tr.dataset.id); };
+
+// =====================================================================
+// Chart
+// =====================================================================
+function fit(cv) { const r = devicePixelRatio || 1, w = cv.clientWidth, h = +cv.getAttribute("height");
+  if (cv.width !== Math.round(w*r)) { cv.width = Math.round(w*r); cv.height = h*r; } const x = cv.getContext("2d"); x.setTransform(r,0,0,r,0,0); return [x, w, h]; }
+function draw(P, ev, meta) {
+  const cs = P.c2, N = 60, view = cs.slice(-N), off = cs.length - view.length;
+  const [x, w, h] = fit($("chart")); x.clearRect(0, 0, w, h);
+  const padR = 66, cw = (w - padR) / N, I = ev ? ev.info : {};
+  let hi = Math.max(...view.map(c => c.h)), lo = Math.min(...view.map(c => c.l));
+  const span = hi - lo || 1; hi += span*0.06; lo -= span*0.06;
+  const Y = p => 8 + (hi - p) / (hi - lo) * (h - 22);
+  x.font = "11px system-ui"; x.strokeStyle = "#1c232d";
+  for (let k = 0; k <= 5; k++) { const p = lo + (hi-lo)*k/5; x.beginPath(); x.moveTo(0, Y(p)); x.lineTo(w-padR, Y(p)); x.stroke(); x.fillStyle = "#8b949e"; x.fillText(fmt(p), w-padR+4, Y(p)+4); }
+  const hline = (p, col, lbl) => { if (!isFinite(p) || p > hi || p < lo) return; x.setLineDash([5,4]); x.strokeStyle = col; x.beginPath(); x.moveTo(0, Y(p)); x.lineTo(w-padR, Y(p)); x.stroke(); x.setLineDash([]); x.fillStyle = col; x.fillText(lbl, 4, Y(p) - 3); };
+  hline(I.res, "#ef4444", "Resistance"); hline(I.sup, "#22c55e", "Support");
+  view.forEach((c, k) => {
+    const cx = k*cw + cw/2, col = c.c >= c.o ? "#22c55e" : "#ef4444";
+    x.strokeStyle = x.fillStyle = col; x.beginPath(); x.moveTo(cx, Y(c.h)); x.lineTo(cx, Y(c.l)); x.stroke();
+    x.fillRect(cx - cw*0.35, Y(Math.max(c.o, c.c)), cw*0.7, Math.max(1, Math.abs(Y(c.o) - Y(c.c))));
+    if (k === view.length - 1) { x.strokeStyle = "#f59e0b"; x.strokeRect(cx - cw*0.48, Y(c.h) - 3, cw*0.96, Y(c.l) - Y(c.h) + 6); }
+  });
+  const line = (arr, col) => { x.strokeStyle = col; x.lineWidth = 1.5; x.beginPath();
+    arr.slice(off).forEach((v, k) => { const px = k*cw + cw/2; k ? x.lineTo(px, Y(v)) : x.moveTo(px, Y(v)); }); x.stroke(); x.lineWidth = 1; };
+  line(P.e9, "#58a6ff"); line(P.e21, "#f778ba");
+  // past signal markers
+  const marks = journal.filter(j => j.pair === cur).concat(pendings.filter(p => p.pair === cur));
+  marks.forEach(j => { const k = view.findIndex(c => c.t === j.t); if (k < 0) return;
+    const c = view[k], cx = k*cw + cw/2, upd = j.dir === "UP";
+    x.fillStyle = j.res === "W" ? "#22c55e" : j.res === "L" ? "#ef4444" : "#f59e0b";
+    const yy = upd ? Y(c.l) + 12 : Y(c.h) - 12;
+    x.beginPath(); if (upd) { x.moveTo(cx, yy - 6); x.lineTo(cx - 5, yy + 3); x.lineTo(cx + 5, yy + 3); } else { x.moveTo(cx, yy + 6); x.lineTo(cx - 5, yy - 3); x.lineTo(cx + 5, yy - 3); }
+    x.fill(); if (j.res) x.fillText(j.res === "W" ? "✔" : j.res === "L" ? "✖" : "=", cx - 4, upd ? yy + 14 : yy - 8); });
+  $("chartTitle").textContent = `${meta.label} · 2 min`;
+  const tn = t => t > 0 ? '<span class="pill up">▲ UP</span>' : t < 0 ? '<span class="pill dn">▼ DOWN</span>' : '<span class="pill no">sideways</span>';
+  $("htfBadges").innerHTML = ev ? `15m ${tn(I.t15)} 5m ${tn(I.t5)}` : "";
+  const [r, rw, rh] = fit($("rsi")); r.clearRect(0, 0, rw, rh);
+  const RY = v => 4 + (100 - v)/100 * (rh - 8);
+  r.font = "11px system-ui"; r.strokeStyle = "#2a323d";
+  [30, 50, 70].forEach(v => { r.beginPath(); r.moveTo(0, RY(v)); r.lineTo(rw - padR, RY(v)); r.stroke(); r.fillStyle = "#8b949e"; r.fillText(v, rw - padR + 4, RY(v) + 4); });
+  r.strokeStyle = "#f59e0b"; r.lineWidth = 1.5; r.beginPath();
+  P.r.slice(off).forEach((v, k) => { const px = k*cw + cw/2; k ? r.lineTo(px, RY(v)) : r.moveTo(px, RY(v)); }); r.stroke(); r.lineWidth = 1;
+  r.fillStyle = "#f59e0b"; r.fillText("RSI 14", 4, 12);
+}
+
+// =====================================================================
+// Sound
+// =====================================================================
+let actx;
+function beep(freq, dur = 0.3) {
+  if (!soundOn) return;
+  try { actx = actx || new AudioContext(); const o = actx.createOscillator(), g = actx.createGain();
+    o.frequency.value = freq; o.connect(g); g.connect(actx.destination); g.gain.value = 0.18; o.start(); o.stop(actx.currentTime + dur); } catch (e) {}
+}
+
+// =====================================================================
+// UI wiring
+// =====================================================================
+function buildMenu() {
+  const q = $("filter").value.trim().toUpperCase().replace(/[\s/]/g, "");
+  const ok = p => !q || p.label.toUpperCase().replace(/[\s/()·]/g, "").includes(q) || p.id === cur;
+  const groups = {}; PAIRS.filter(ok).forEach(p => (groups[p.group] = groups[p.group] || []).push(p));
+  $("pair").innerHTML = Object.entries(groups).map(([g, ps]) => `<optgroup label="${g}">${ps.map(p => `<option value="${p.id}">${p.label}</option>`).join("")}</optgroup>`).join("");
+  if (cur) $("pair").value = cur;
+}
+function selectPair(id) {
+  if (!META[id]) return;
+  cur = id; store.set("t_pair", id); lock = null; lastBt = 0;
+  buildMenu(); ADAPTER.select(id); lastScan = 0;
+}
+$("pair").onchange = e => selectPair(e.target.value);
+$("filter").oninput = buildMenu;
+$("sound").onclick = () => { soundOn = !soundOn; $("sound").textContent = `🔔 ${soundOn ? "ON" : "OFF"}`; if (soundOn) beep(660, 0.1); };
+$("reset").onclick = () => { journal = []; store.set("t_journal", journal); renderPerf(); };
+$("btRun").onclick = () => { lastBt = 0; renderBacktest(); };
+$("bal").value = store.get("t_bal", 100); $("riskPct").value = String(store.get("t_risk", 2));
+$("payout").value = store.get("t_payout", 80); $("minGrade").value = store.get("t_grade", "B");
+$("bal").oninput = () => store.set("t_bal", +$("bal").value);
+$("riskPct").onchange = () => store.set("t_risk", +$("riskPct").value);
+$("payout").oninput = () => { store.set("t_payout", +$("payout").value); renderPerf(); lastBt = 0; };
+$("minGrade").onchange = () => { store.set("t_grade", $("minGrade").value); lastBt = 0; };
+
+(async function main() {
+  renderPerf();
+  setStatus(false, "Connecting…");
+  PAIRS = await ADAPTER.init();
+  PAIRS.forEach(p => META[p.id] = p);
+  if (!cur || !META[cur]) cur = PAIRS[0] && PAIRS[0].id;
+  buildMenu();
+  selectPair(cur);
+  setInterval(tick, 250);
+})();
+</script>
+</body>
+</html>
