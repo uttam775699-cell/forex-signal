@@ -143,6 +143,9 @@ const ADAPTER = (() => {
       $("scanCtl").innerHTML = `<button id="tdScan">🔍 7 majors scan (~7 credits)</button>
         <div class="note">Scan ek baar ka snapshot hai. Free plan me 1 minute me 8 request milti hain, isliye software khud intezaar karke ek-ek karke laata hai.</div>`;
       $("tdScan").onclick = scanMajors;
+      // phone screen / tab back: get a fresh price at once
+      const wake = () => { if (!document.hidden && running) { lastPriceTry = 0; if (Date.now() - (seriesAt[sel] || 0) > 70000) lastSeriesMin = null; } };
+      document.addEventListener("visibilitychange", wake); window.addEventListener("focus", wake); window.addEventListener("online", wake);
       return list;
     },
     select(id) { sel = id; forcedFor = null; tzOff = null; if (running) { clearInterval(loop); startRun(); } },
