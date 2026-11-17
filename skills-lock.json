@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "skills": {
+    "cinematic-film": {
+      "source": "Moh4696/cinematic-skill",
+      "commit": "bf435561c6203f90f971300efe952b68b5ec3417",
+      "sourceType": "github",
+      "skillPath": "skills/cinematic-film/SKILL.md",
+      "computedHash": "ad5ded9df61592cd0952633c08e912a2b34eeba78415cf67c33037922619e146"
+    }
+  }
+}
