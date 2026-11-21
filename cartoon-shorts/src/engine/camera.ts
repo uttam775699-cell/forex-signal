@@ -60,10 +60,10 @@ export const walkU = (u: number) => {
 export const camAt = (ep: Episode, i: number, f: number): Cam => {
   const s = ep.scenes[i], R = rigOf(s), { u, t } = localT(ep, i, f);
   const mv = s.move ?? (s.cam === "wide" || s.cam === "aerial" ? "right" : "push");
-  const k = smoother(u);
+  const k = 0.78 * smoother(u) + 0.22 * u; // never comes to a full stop (a still tail reads as a freeze on Shorts)
   let dist = R.dist, h = R.h, az = ((s.az ?? (s.cam === "ots" ? 160 : 0)) * Math.PI) / 180;
   // every shot moves a little: a continuous creep plus the named move
-  const creep = 1 - 0.07 * u;
+  const creep = 1 - 0.1 * u;
   if (mv === "push") dist *= 1.12 - 0.22 * k;
   else if (mv === "pull") dist *= 0.88 + 0.25 * k;
   else if (mv === "left") az -= 0.22 * (k - 0.5) * 2;

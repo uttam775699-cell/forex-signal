@@ -88,8 +88,8 @@
     {
      "id": "winner",
      "at": [
-      0.45,
-      -1.8
+      0.1,
+      -2.0
      ],
      "mode": "cheer",
      "expr": "laugh"
@@ -101,7 +101,7 @@
      "n": 12,
      "at": [
       0,
-      -3.2
+      -5.2
      ],
      "mode": "wave",
      "mixExpr": true
@@ -111,15 +111,15 @@
     {
      "kind": "check",
      "at": [
-      -0.75,
-      -2.9
+      -1.4,
+      -3.4
      ],
      "s": 0.75
     }
    ],
    "focus": [
-    0,
-    -2.0
+    0.1,
+    -2.2
    ],
    "sfx": [
     "applause"
@@ -360,6 +360,7 @@
      ]
     }
    ],
+   "az": 35,
    "a": 252,
    "b": 369,
    "words": [
@@ -854,6 +855,7 @@
    "sfx": [
     "bell"
    ],
+   "az": -35,
    "a": 761,
    "b": 838,
    "words": [
@@ -897,18 +899,18 @@
   {
    "line": "Agents tapped phones and followed the money.",
    "set": "town",
-   "cam": "high",
-   "move": "right",
+   "cam": "medium",
+   "move": "left",
    "actors": [
     {
      "id": "agent1",
      "at": [
-      -0.6,
-      3
+      -0.5,
+      2
      ],
      "to": [
-      -0.6,
-      -6
+      -0.5,
+      -5
      ],
      "mode": "walk",
      "expr": "stern"
@@ -917,20 +919,17 @@
      "id": "agent2",
      "at": [
       0.6,
-      3.4
+      2.4
      ],
      "to": [
       0.6,
-      -5.6
+      -4.6
      ],
      "mode": "walk",
      "expr": "stern"
     }
    ],
-   "focus": [
-    0,
-    -1.5
-   ],
+   "focus": "agent1",
    "a": 838,
    "b": 910,
    "words": [
@@ -1310,15 +1309,15 @@
   },
   {
    "line": "More than fifty people were convicted, over tens of millions in prizes.",
-   "set": "room",
+   "set": "square",
    "cam": "medium",
-   "move": "pull",
+   "move": "push",
    "actors": [
     {
      "id": "cousin",
      "at": [
-      -1.6,
-      -2.6
+      -1.5,
+      -2.2
      ],
      "expr": "pained"
     },
@@ -1326,25 +1325,34 @@
      "id": "buddy",
      "at": [
       -0.5,
-      -2.8
+      -2.4
      ],
      "expr": "dazed"
     },
     {
      "id": "sailor",
      "at": [
-      0.6,
-      -2.7
+      0.5,
+      -2.3
      ],
      "expr": "nervous"
     },
     {
      "id": "guard",
      "at": [
-      1.8,
-      -2.2
+      1.5,
+      -2.0
      ],
      "expr": "stern"
+    }
+   ],
+   "props": [
+    {
+     "kind": "statue",
+     "at": [
+      0,
+      -7.5
+     ]
     }
    ],
    "fx": [
