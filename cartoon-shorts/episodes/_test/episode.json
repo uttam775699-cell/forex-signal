@@ -1,0 +1,219 @@
+{
+ "slug": "_test",
+ "title": "set test",
+ "cast": {
+  "hero": {
+   "outfit": "farmer"
+  },
+  "doc": {
+   "outfit": "scientist"
+  },
+  "lady": {
+   "outfit": "lady"
+  },
+  "boy": {
+   "outfit": "kid"
+  }
+ },
+ "scenes": [
+  {
+   "line": "town",
+   "set": "town",
+   "cam": "medium",
+   "actors": [
+    {
+     "id": "hero",
+     "at": [
+      -1,
+      0
+     ],
+     "expr": "grin"
+    },
+    {
+     "id": "lady",
+     "at": [
+      1.2,
+      -0.5
+     ],
+     "expr": "smile"
+    }
+   ],
+   "a": 0,
+   "b": 60
+  },
+  {
+   "line": "square",
+   "set": "square",
+   "cam": "wide",
+   "crowd": [
+    {
+     "outfit": "townsman",
+     "n": 14,
+     "at": [
+      0,
+      2
+     ],
+     "mixExpr": true
+    }
+   ],
+   "a": 60,
+   "b": 120
+  },
+  {
+   "line": "river",
+   "set": "river",
+   "cam": "medium",
+   "az": 20,
+   "actors": [
+    {
+     "id": "boy",
+     "at": [
+      0,
+      -3
+     ],
+     "expr": "shock"
+    }
+   ],
+   "fx": [
+    {
+     "kind": "burst",
+     "on": "boy",
+     "at": 0.2,
+     "dur": 0.6
+    }
+   ],
+   "a": 120,
+   "b": 180
+  },
+  {
+   "line": "farm",
+   "set": "farm",
+   "cam": "wide",
+   "actors": [
+    {
+     "id": "hero",
+     "at": [
+      0,
+      4
+     ],
+     "to": [
+      0,
+      -6
+     ],
+     "mode": "walk",
+     "expr": "whistle"
+    }
+   ],
+   "fx": [
+    {
+     "kind": "notes",
+     "on": "hero",
+     "at": 0,
+     "dur": 1
+    }
+   ],
+   "a": 180,
+   "b": 240
+  },
+  {
+   "line": "harbor",
+   "set": "harbor",
+   "cam": "medium",
+   "light": "golden",
+   "actors": [
+    {
+     "id": "hero",
+     "at": [
+      -0.8,
+      -3
+     ],
+     "expr": "nervous"
+    },
+    {
+     "id": "lady",
+     "at": [
+      0.9,
+      -3.4
+     ],
+     "expr": "stern"
+    }
+   ],
+   "a": 240,
+   "b": 300
+  },
+  {
+   "line": "room",
+   "set": "room",
+   "cam": "medium",
+   "actors": [
+    {
+     "id": "doc",
+     "at": [
+      0,
+      -2
+     ],
+     "expr": "laugh",
+     "mode": "cheer"
+    }
+   ],
+   "props": [
+    {
+     "kind": "desk",
+     "at": [
+      1.8,
+      -2.5
+     ]
+    }
+   ],
+   "a": 300,
+   "b": 360
+  },
+  {
+   "line": "hill",
+   "set": "hill",
+   "cam": "close",
+   "light": "golden",
+   "actors": [
+    {
+     "id": "boy",
+     "at": [
+      0,
+      0
+     ],
+     "expr": "relief"
+    }
+   ],
+   "a": 360,
+   "b": 420
+  },
+  {
+   "line": "march",
+   "set": "town",
+   "cam": "low",
+   "crowd": [
+    {
+     "outfit": "redcoat",
+     "n": 16,
+     "cols": 4,
+     "at": [
+      0,
+      6
+     ],
+     "to": [
+      0,
+      -10
+     ],
+     "mode": "march",
+     "expr": "stern"
+    }
+   ],
+   "focus": [
+    0,
+    -2
+   ],
+   "a": 420,
+   "b": 480
+  }
+ ],
+ "total": 480
+}
