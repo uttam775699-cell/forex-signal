@@ -9,6 +9,25 @@ Daily original cartoon shorts for a US YouTube channel: true, surprising history
 - `LOG.md` — every published / drafted episode (never repeat a topic). `AUDITS.md` — weekly channel audits.
 - First thing in a fresh container: `bash setup.sh`.
 
+## Channel
+Mind Blown Business (@realmindblown-q5f, channel id UCCtK8L8fbQyfo7FzzfTfEuQ): true stories behind America's biggest
+brands (money, mistakes, scams, inventions). USA audience, English, Shorts 45-60 s. Never change channel settings,
+never upload or publish without the owner's explicit approval.
+
+## The 90+ rule (owner's master process: every stage must score 90/100 or the work stops there)
+RESEARCH -> 10 IDEAS scored (USA 15, viral 20, 3-second hook 15, curiosity 10, retention 15, share 10, originality 10,
+competition 5) -> only an idea >= 90 goes on -> SCRIPT scored (hook 20, story 15, retention 20, curiosity 15, USA 10,
+emotion 10, originality 10), rewrite until >= 90 -> VIDEO -> FINAL VIDEO scored (hook 20, retention 20, visuals 15,
+story 15, editing 10, audio 10, USA 5, originality/policy 5) after actually looking at the frames -> >= 90 -> owner's
+approval -> publish. Never inflate a score; say plainly when data (analytics, credits) was unavailable.
+Competition is measured with YouTube search through the TubeAlfred API (api.tubealfred.com/v1/youtube/search?query=...,
+/v1/youtube/channel/<id>/shorts, /v1/youtube/video/<id>); vidIQ when it has credits.
+
+## Voice
+ElevenLabs (key is injected by the environment proxy for api.elevenlabs.io): `"tts": "elevenlabs"`, default voice
+Brian `nPczCjzI2devNBz1zQrb`. Creator plan: mp3 output only; ~1,000 characters per episode. Lines are cached, a
+re-run never pays twice for the same line. Captions are burned in from the exact word timings.
+
 ## Daily episode routine
 1. `bash setup.sh`. Read `EPISODE_GUIDE.md`, `LOG.md` and the latest entry of `AUDITS.md` (it may change what to make).
 2. Pick a new topic that fits the guide. Verify every fact with at least two reliable sources (web search).

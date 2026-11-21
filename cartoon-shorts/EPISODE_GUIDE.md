@@ -9,13 +9,13 @@ pipeline/make.sh episodes/<slug>          # voice -> audio -> stills sheet (chec
 ```
 
 ## Channel rules
-- **Audience:** USA. English narration, one steady tone.
+- **Audience:** USA. English narration (ElevenLabs), burned-in captions on by default.
+- **Channel niche:** the true stories behind America's biggest brands (scams, blunders, inventions, money). Brand names are fine in factual commentary; never draw a real logo.
 - **Stories:** a surprising **true** story from history or science with a physical, visual cause and effect.
   Every fact needs a source (Britannica, History.com, Smithsonian, Wikipedia + its cited sources). Put the facts
   and their URLs in `facts` / `sources`. If sources disagree, say "about", "as many as", or leave the detail out.
 - Jokes must be real facts, never invented. No made-up quotes.
 - Never reuse a topic: check `episodes/` and `LOG.md` first.
-- No captions or text labels in the picture.
 - Avoid gore and graphic death. Disasters are fine, told with a light touch, and "nobody was hurt" only if true.
 
 ## Script formula (130–160 words, 12–16 scenes, one or two sentences per scene)
@@ -63,7 +63,7 @@ Overrides: `skin` (0–3), `build` (`adult` `stout` `kid`), `hair`, `jacket`, `p
 
 **Props:** `tree` `tallTree` `pine` `bush` `hedge` `rock` `barrel` `crate` `crates` `fence` `lamp` `bench` `table` `chair`
 `desk` `cart` `well` `fountain` `boat` `ship` `haystack` `tent` `flagpole` `cannon` `bollard` `statue` `shelf` `clock`
-`anvil` `sack` `pumpkin` `stall`.
+`anvil` `sack` `pumpkin` `stall` `check` (giant prize check) `tvcamera` `van` `briefcase` `safe`.
 
 ## Shot grammar that works
 - Open on a `wide` or `high` with a crowd or the key object, `push`.

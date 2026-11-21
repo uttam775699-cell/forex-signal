@@ -1,0 +1,1544 @@
+{
+ "slug": "mcdonalds-monopoly-heist",
+ "title": "The Man Who Rigged McDonald's Monopoly",
+ "tts": "elevenlabs",
+ "voice": "nPczCjzI2devNBz1zQrb",
+ "voice_settings": {
+  "stability": 0.42,
+  "style": 0.3,
+  "speed": 1.04
+ },
+ "scores": {
+  "idea": 93,
+  "script": 91
+ },
+ "facts": [
+  "Jerome 'Jerry' Jacobson, a former police officer, ran security for Simon Marketing, the company that ran McDonald's game promotions.",
+  "He stole high-value winning game pieces and passed them to recruiters, friends and relatives, who claimed the prizes and paid him a share.",
+  "An anonymous tip led the FBI to investigate; undercover agents posed as a McDonald's film crew and interviewed a $1 million winner about how he 'found' his piece.",
+  "In August 2001, about 100 FBI agents fanned out to make arrests across the country.",
+  "More than 50 people were convicted of mail fraud and conspiracy; reported losses range from $13 million (DOJ at arrest) to more than $24 million.",
+  "Jacobson was sentenced to about three years in federal prison and ordered to pay $12.5 million in restitution."
+ ],
+ "sources": [
+  "https://www.justice.gov/archive/opa/pr/2001/August/422ag.htm",
+  "https://www.cnbc.com/2020/02/07/how-mcmillions-scam-rigged-the-mcdonalds-monopoly-game.html",
+  "https://www.thedailybeast.com/how-an-ex-cop-rigged-mcdonalds-monopoly-game-and-stole-millions",
+  "https://www.occrp.org/en/daily/8412-ex-cop-rigged-mcdonalds-monopoly-to-steal-millions",
+  "https://www.wusf.org/2020-02-01/mcmillions-how-the-ex-cop-who-scammed-mcdonalds-monopoly-got-caught"
+ ],
+ "cast": {
+  "jerry": {
+   "outfit": "police",
+   "hat": "hair",
+   "hair": "#5a4a3a",
+   "moustache": "#5a4a3a",
+   "jacket": "#4a5160",
+   "pants": "#3b3f52",
+   "skin": 0,
+   "build": "stout"
+  },
+  "winner": {
+   "outfit": "man",
+   "jacket": "#e0a23a",
+   "skin": 2
+  },
+  "cousin": {
+   "outfit": "woman",
+   "dress": "#5a8fc2",
+   "jacket": "#c25a7a",
+   "skin": 1
+  },
+  "buddy": {
+   "outfit": "farmer",
+   "skin": 3
+  },
+  "sailor": {
+   "outfit": "sailor",
+   "skin": 1
+  },
+  "agent1": {
+   "outfit": "gentleman",
+   "hat": null,
+   "jacket": "#23262f",
+   "pants": "#23262f",
+   "moustache": "",
+   "skin": 0
+  },
+  "agent2": {
+   "outfit": "gentleman",
+   "hat": null,
+   "jacket": "#23262f",
+   "pants": "#23262f",
+   "moustache": "",
+   "skin": 3
+  },
+  "guard": {
+   "outfit": "police",
+   "skin": 2
+  }
+ },
+ "scenes": [
+  {
+   "line": "For years, McDonald's Monopoly had a secret.",
+   "set": "square",
+   "cam": "medium",
+   "move": "push",
+   "actors": [
+    {
+     "id": "winner",
+     "at": [
+      0.45,
+      -1.8
+     ],
+     "mode": "cheer",
+     "expr": "laugh"
+    }
+   ],
+   "crowd": [
+    {
+     "outfit": "townsman",
+     "n": 12,
+     "at": [
+      0,
+      -3.2
+     ],
+     "mode": "wave",
+     "mixExpr": true
+    }
+   ],
+   "props": [
+    {
+     "kind": "check",
+     "at": [
+      -0.75,
+      -2.9
+     ],
+     "s": 0.75
+    }
+   ],
+   "focus": [
+    0,
+    -2.0
+   ],
+   "sfx": [
+    "applause"
+   ],
+   "a": 0,
+   "b": 94,
+   "words": [
+    {
+     "w": "For",
+     "s": 0.27,
+     "e": 0.456
+    },
+    {
+     "w": "years,",
+     "s": 0.548,
+     "e": 0.978
+    },
+    {
+     "w": "McDonald's",
+     "s": 1.013,
+     "e": 1.524
+    },
+    {
+     "w": "Monopoly",
+     "s": 1.57,
+     "e": 2.046
+    },
+    {
+     "w": "had",
+     "s": 2.104,
+     "e": 2.232
+    },
+    {
+     "w": "a",
+     "s": 2.267,
+     "e": 2.29
+    },
+    {
+     "w": "secret.",
+     "s": 2.348,
+     "e": 2.824
+    }
+   ]
+  },
+  {
+   "line": "The million-dollar pieces never made it to the fries.",
+   "set": "room",
+   "cam": "low",
+   "move": "push",
+   "actors": [
+    {
+     "id": "jerry",
+     "at": [
+      0.2,
+      -2.4
+     ],
+     "expr": "stern",
+     "beats": [
+      {
+       "at": 0.6,
+       "expr": "grin"
+      }
+     ]
+    }
+   ],
+   "props": [
+    {
+     "kind": "safe",
+     "at": [
+      -1.3,
+      -3.6
+     ]
+    },
+    {
+     "kind": "briefcase",
+     "at": [
+      -0.5,
+      -2.2
+     ]
+    }
+   ],
+   "focus": [
+    0.1,
+    -2.6
+   ],
+   "a": 94,
+   "b": 183,
+   "words": [
+    {
+     "w": "The",
+     "s": 3.195,
+     "e": 3.311
+    },
+    {
+     "w": "million-dollar",
+     "s": 3.369,
+     "e": 3.891
+    },
+    {
+     "w": "pieces",
+     "s": 3.949,
+     "e": 4.356
+    },
+    {
+     "w": "never",
+     "s": 4.495,
+     "e": 4.75
+    },
+    {
+     "w": "made",
+     "s": 4.797,
+     "e": 4.948
+    },
+    {
+     "w": "it",
+     "s": 4.983,
+     "e": 5.029
+    },
+    {
+     "w": "to",
+     "s": 5.052,
+     "e": 5.11
+    },
+    {
+     "w": "the",
+     "s": 5.157,
+     "e": 5.226
+    },
+    {
+     "w": "fries.",
+     "s": 5.261,
+     "e": 5.784
+    }
+   ]
+  },
+  {
+   "line": "They went home in one man's pocket.",
+   "set": "town",
+   "cam": "medium",
+   "move": "pull",
+   "flash": true,
+   "actors": [
+    {
+     "id": "jerry",
+     "at": [
+      0,
+      1
+     ],
+     "to": [
+      0,
+      -4
+     ],
+     "mode": "walk",
+     "expr": "smile_closed"
+    }
+   ],
+   "props": [
+    {
+     "kind": "van",
+     "at": [
+      3.8,
+      -6
+     ],
+     "yaw": 0
+    }
+   ],
+   "sfx": [
+    "whoosh"
+   ],
+   "a": 183,
+   "b": 252,
+   "words": [
+    {
+     "w": "They",
+     "s": 6.17,
+     "e": 6.332
+    },
+    {
+     "w": "went",
+     "s": 6.379,
+     "e": 6.565
+    },
+    {
+     "w": "home",
+     "s": 6.623,
+     "e": 6.866
+    },
+    {
+     "w": "in",
+     "s": 6.913,
+     "e": 6.994
+    },
+    {
+     "w": "one",
+     "s": 7.075,
+     "e": 7.25
+    },
+    {
+     "w": "man's",
+     "s": 7.296,
+     "e": 7.551
+    },
+    {
+     "w": "pocket.",
+     "s": 7.609,
+     "e": 8.109
+    }
+   ]
+  },
+  {
+   "line": "Jerry Jacobson was a former cop, hired to guard the game's most valuable pieces.",
+   "set": "room",
+   "cam": "medium",
+   "move": "push",
+   "actors": [
+    {
+     "id": "jerry",
+     "at": [
+      0.5,
+      -2.2
+     ],
+     "expr": "stern"
+    }
+   ],
+   "props": [
+    {
+     "kind": "safe",
+     "at": [
+      -1.1,
+      -3.0
+     ]
+    },
+    {
+     "kind": "desk",
+     "at": [
+      2.4,
+      -3.4
+     ]
+    }
+   ],
+   "a": 252,
+   "b": 369,
+   "words": [
+    {
+     "w": "Jerry",
+     "s": 8.462,
+     "e": 8.694
+    },
+    {
+     "w": "Jacobson",
+     "s": 8.74,
+     "e": 9.1
+    },
+    {
+     "w": "was",
+     "s": 9.135,
+     "e": 9.228
+    },
+    {
+     "w": "a",
+     "s": 9.263,
+     "e": 9.298
+    },
+    {
+     "w": "former",
+     "s": 9.332,
+     "e": 9.576
+    },
+    {
+     "w": "cop,",
+     "s": 9.634,
+     "e": 9.924
+    },
+    {
+     "w": "hired",
+     "s": 9.971,
+     "e": 10.226
+    },
+    {
+     "w": "to",
+     "s": 10.25,
+     "e": 10.296
+    },
+    {
+     "w": "guard",
+     "s": 10.342,
+     "e": 10.528
+    },
+    {
+     "w": "the",
+     "s": 10.551,
+     "e": 10.621
+    },
+    {
+     "w": "game's",
+     "s": 10.656,
+     "e": 10.9
+    },
+    {
+     "w": "most",
+     "s": 10.958,
+     "e": 11.109
+    },
+    {
+     "w": "valuable",
+     "s": 11.155,
+     "e": 11.48
+    },
+    {
+     "w": "pieces.",
+     "s": 11.515,
+     "e": 11.991
+    }
+   ]
+  },
+  {
+   "line": "Instead, he slipped them out, and sold them to friends, family, even strangers.",
+   "set": "town",
+   "cam": "medium",
+   "move": "right",
+   "actors": [
+    {
+     "id": "jerry",
+     "at": [
+      0,
+      -2
+     ],
+     "expr": "grin"
+    },
+    {
+     "id": "cousin",
+     "at": [
+      -1.15,
+      -1.4
+     ],
+     "expr": "shock",
+     "beats": [
+      {
+       "at": 0.4,
+       "expr": "grin"
+      }
+     ]
+    },
+    {
+     "id": "buddy",
+     "at": [
+      1.15,
+      -1.5
+     ],
+     "expr": "nervous",
+     "beats": [
+      {
+       "at": 0.6,
+       "expr": "laugh"
+      }
+     ]
+    }
+   ],
+   "fx": [
+    {
+     "kind": "burst",
+     "on": "jerry",
+     "at": 0.05,
+     "dur": 0.35,
+     "size": 0.6
+    }
+   ],
+   "a": 369,
+   "b": 516,
+   "words": [
+    {
+     "w": "Instead,",
+     "s": 12.37,
+     "e": 12.881
+    },
+    {
+     "w": "he",
+     "s": 12.915,
+     "e": 12.985
+    },
+    {
+     "w": "slipped",
+     "s": 13.055,
+     "e": 13.357
+    },
+    {
+     "w": "them",
+     "s": 13.38,
+     "e": 13.496
+    },
+    {
+     "w": "out,",
+     "s": 13.542,
+     "e": 13.833
+    },
+    {
+     "w": "and",
+     "s": 13.914,
+     "e": 14.076
+    },
+    {
+     "w": "sold",
+     "s": 14.146,
+     "e": 14.378
+    },
+    {
+     "w": "them",
+     "s": 14.402,
+     "e": 14.506
+    },
+    {
+     "w": "to",
+     "s": 14.541,
+     "e": 14.599
+    },
+    {
+     "w": "friends,",
+     "s": 14.669,
+     "e": 15.226
+    },
+    {
+     "w": "family,",
+     "s": 15.493,
+     "e": 15.957
+    },
+    {
+     "w": "even",
+     "s": 15.992,
+     "e": 16.19
+    },
+    {
+     "w": "strangers.",
+     "s": 16.248,
+     "e": 16.898
+    }
+   ]
+  },
+  {
+   "line": "They'd claim the prize, smile for the cameras, and send him a cut.",
+   "set": "square",
+   "cam": "medium",
+   "move": "orbit",
+   "actors": [
+    {
+     "id": "cousin",
+     "at": [
+      0.45,
+      -2.2
+     ],
+     "mode": "wave",
+     "expr": "grin"
+    }
+   ],
+   "props": [
+    {
+     "kind": "check",
+     "at": [
+      -0.75,
+      -3.3
+     ],
+     "s": 0.75
+    },
+    {
+     "kind": "tvcamera",
+     "at": [
+      2.6,
+      0.4
+     ],
+     "yaw": 200
+    }
+   ],
+   "crowd": [
+    {
+     "outfit": "townsman",
+     "n": 8,
+     "at": [
+      0,
+      -4.6
+     ],
+     "mode": "cheer",
+     "mixExpr": true
+    }
+   ],
+   "focus": [
+    0,
+    -2.4
+   ],
+   "sfx": [
+    "applause"
+   ],
+   "a": 516,
+   "b": 626,
+   "words": [
+    {
+     "w": "They'd",
+     "s": 17.27,
+     "e": 17.549
+    },
+    {
+     "w": "claim",
+     "s": 17.595,
+     "e": 17.897
+    },
+    {
+     "w": "the",
+     "s": 17.967,
+     "e": 18.036
+    },
+    {
+     "w": "prize,",
+     "s": 18.095,
+     "e": 18.594
+    },
+    {
+     "w": "smile",
+     "s": 18.617,
+     "e": 18.942
+    },
+    {
+     "w": "for",
+     "s": 18.977,
+     "e": 19.07
+    },
+    {
+     "w": "the",
+     "s": 19.116,
+     "e": 19.186
+    },
+    {
+     "w": "cameras,",
+     "s": 19.221,
+     "e": 19.65
+    },
+    {
+     "w": "and",
+     "s": 19.673,
+     "e": 19.755
+    },
+    {
+     "w": "send",
+     "s": 19.813,
+     "e": 19.952
+    },
+    {
+     "w": "him",
+     "s": 19.987,
+     "e": 20.057
+    },
+    {
+     "w": "a",
+     "s": 20.091,
+     "e": 20.115
+    },
+    {
+     "w": "cut.",
+     "s": 20.161,
+     "e": 20.579
+    }
+   ]
+  },
+  {
+   "line": "Big winners popped up all over America.",
+   "set": "farm",
+   "cam": "wide",
+   "move": "right",
+   "actors": [
+    {
+     "id": "buddy",
+     "at": [
+      0.6,
+      -1
+     ],
+     "mode": "cheer",
+     "expr": "laugh"
+    }
+   ],
+   "props": [
+    {
+     "kind": "check",
+     "at": [
+      -1.0,
+      -1.2
+     ]
+    }
+   ],
+   "focus": [
+    0,
+    -1
+   ],
+   "sfx": [
+    "cheer"
+   ],
+   "a": 626,
+   "b": 709,
+   "words": [
+    {
+     "w": "Big",
+     "s": 20.929,
+     "e": 21.138
+    },
+    {
+     "w": "winners",
+     "s": 21.196,
+     "e": 21.509
+    },
+    {
+     "w": "popped",
+     "s": 21.579,
+     "e": 21.915
+    },
+    {
+     "w": "up",
+     "s": 21.95,
+     "e": 22.055
+    },
+    {
+     "w": "all",
+     "s": 22.136,
+     "e": 22.391
+    },
+    {
+     "w": "over",
+     "s": 22.473,
+     "e": 22.67
+    },
+    {
+     "w": "America.",
+     "s": 22.74,
+     "e": 23.332
+    }
+   ]
+  },
+  {
+   "line": "Almost none of them were real.",
+   "set": "harbor",
+   "cam": "medium",
+   "move": "push",
+   "focus": "sailor",
+   "actors": [
+    {
+     "id": "sailor",
+     "at": [
+      0,
+      -3
+     ],
+     "expr": "grin",
+     "beats": [
+      {
+       "at": 0.45,
+       "expr": "nervous"
+      }
+     ]
+    }
+   ],
+   "kick": 0.45,
+   "sfx": [
+    "thud"
+   ],
+   "a": 709,
+   "b": 761,
+   "words": [
+    {
+     "w": "Almost",
+     "s": 23.703,
+     "e": 24.016
+    },
+    {
+     "w": "none",
+     "s": 24.074,
+     "e": 24.225
+    },
+    {
+     "w": "of",
+     "s": 24.248,
+     "e": 24.295
+    },
+    {
+     "w": "them",
+     "s": 24.341,
+     "e": 24.457
+    },
+    {
+     "w": "were",
+     "s": 24.504,
+     "e": 24.632
+    },
+    {
+     "w": "real.",
+     "s": 24.69,
+     "e": 25.061
+    }
+   ]
+  },
+  {
+   "line": "Then an anonymous tip reached the FBI.",
+   "set": "room",
+   "cam": "medium",
+   "move": "push",
+   "actors": [
+    {
+     "id": "agent1",
+     "at": [
+      -0.8,
+      -2.2
+     ],
+     "expr": "stern"
+    },
+    {
+     "id": "agent2",
+     "at": [
+      0.8,
+      -2.4
+     ],
+     "expr": "shock",
+     "beats": [
+      {
+       "at": 0.5,
+       "expr": "stern"
+      }
+     ]
+    }
+   ],
+   "props": [
+    {
+     "kind": "desk",
+     "at": [
+      0,
+      -3.6
+     ]
+    }
+   ],
+   "sfx": [
+    "bell"
+   ],
+   "a": 761,
+   "b": 838,
+   "words": [
+    {
+     "w": "Then",
+     "s": 25.437,
+     "e": 25.612
+    },
+    {
+     "w": "an",
+     "s": 25.67,
+     "e": 25.751
+    },
+    {
+     "w": "anonymous",
+     "s": 25.821,
+     "e": 26.308
+    },
+    {
+     "w": "tip",
+     "s": 26.343,
+     "e": 26.564
+    },
+    {
+     "w": "reached",
+     "s": 26.633,
+     "e": 26.831
+    },
+    {
+     "w": "the",
+     "s": 26.854,
+     "e": 26.924
+    },
+    {
+     "w": "FBI.",
+     "s": 26.982,
+     "e": 27.632
+    }
+   ]
+  },
+  {
+   "line": "Agents tapped phones and followed the money.",
+   "set": "town",
+   "cam": "high",
+   "move": "right",
+   "actors": [
+    {
+     "id": "agent1",
+     "at": [
+      -0.6,
+      3
+     ],
+     "to": [
+      -0.6,
+      -6
+     ],
+     "mode": "walk",
+     "expr": "stern"
+    },
+    {
+     "id": "agent2",
+     "at": [
+      0.6,
+      3.4
+     ],
+     "to": [
+      0.6,
+      -5.6
+     ],
+     "mode": "walk",
+     "expr": "stern"
+    }
+   ],
+   "focus": [
+    0,
+    -1.5
+   ],
+   "a": 838,
+   "b": 910,
+   "words": [
+    {
+     "w": "Agents",
+     "s": 28.003,
+     "e": 28.398
+    },
+    {
+     "w": "tapped",
+     "s": 28.444,
+     "e": 28.746
+    },
+    {
+     "w": "phones",
+     "s": 28.793,
+     "e": 29.118
+    },
+    {
+     "w": "and",
+     "s": 29.141,
+     "e": 29.222
+    },
+    {
+     "w": "followed",
+     "s": 29.269,
+     "e": 29.524
+    },
+    {
+     "w": "the",
+     "s": 29.547,
+     "e": 29.617
+    },
+    {
+     "w": "money.",
+     "s": 29.652,
+     "e": 30.023
+    }
+   ]
+  },
+  {
+   "line": "Then they showed up at one winner's house, disguised as a McDonald's film crew.",
+   "set": "town",
+   "cam": "medium",
+   "move": "push",
+   "az": -20,
+   "actors": [
+    {
+     "id": "winner",
+     "at": [
+      -1.2,
+      -2.6
+     ],
+     "expr": "grin"
+    },
+    {
+     "id": "agent1",
+     "at": [
+      0.6,
+      -1.8
+     ],
+     "expr": "smile"
+    },
+    {
+     "id": "agent2",
+     "at": [
+      1.7,
+      -1.4
+     ],
+     "expr": "smile"
+    }
+   ],
+   "props": [
+    {
+     "kind": "tvcamera",
+     "at": [
+      0.9,
+      -0.9
+     ],
+     "yaw": 160
+    }
+   ],
+   "a": 910,
+   "b": 1032,
+   "words": [
+    {
+     "w": "Then",
+     "s": 30.403,
+     "e": 30.577
+    },
+    {
+     "w": "they",
+     "s": 30.612,
+     "e": 30.728
+    },
+    {
+     "w": "showed",
+     "s": 30.786,
+     "e": 31.018
+    },
+    {
+     "w": "up",
+     "s": 31.041,
+     "e": 31.123
+    },
+    {
+     "w": "at",
+     "s": 31.169,
+     "e": 31.239
+    },
+    {
+     "w": "one",
+     "s": 31.297,
+     "e": 31.459
+    },
+    {
+     "w": "winner's",
+     "s": 31.494,
+     "e": 31.784
+    },
+    {
+     "w": "house,",
+     "s": 31.819,
+     "e": 32.109
+    },
+    {
+     "w": "disguised",
+     "s": 32.144,
+     "e": 32.736
+    },
+    {
+     "w": "as",
+     "s": 32.783,
+     "e": 32.864
+    },
+    {
+     "w": "a",
+     "s": 32.911,
+     "e": 32.934
+    },
+    {
+     "w": "McDonald's",
+     "s": 32.98,
+     "e": 33.479
+    },
+    {
+     "w": "film",
+     "s": 33.514,
+     "e": 33.712
+    },
+    {
+     "w": "crew.",
+     "s": 33.77,
+     "e": 34.106
+    }
+   ]
+  },
+  {
+   "line": "He happily told the camera his whole story.",
+   "set": "town",
+   "cam": "close",
+   "move": "push",
+   "focus": "winner",
+   "az": -20,
+   "actors": [
+    {
+     "id": "winner",
+     "at": [
+      -1.2,
+      -2.6
+     ],
+     "mode": "wave",
+     "expr": "laugh"
+    }
+   ],
+   "a": 1032,
+   "b": 1112,
+   "words": [
+    {
+     "w": "He",
+     "s": 34.47,
+     "e": 34.586
+    },
+    {
+     "w": "happily",
+     "s": 34.667,
+     "e": 35.039
+    },
+    {
+     "w": "told",
+     "s": 35.097,
+     "e": 35.294
+    },
+    {
+     "w": "the",
+     "s": 35.329,
+     "e": 35.399
+    },
+    {
+     "w": "camera",
+     "s": 35.433,
+     "e": 35.782
+    },
+    {
+     "w": "his",
+     "s": 35.84,
+     "e": 35.944
+    },
+    {
+     "w": "whole",
+     "s": 35.991,
+     "e": 36.223
+    },
+    {
+     "w": "story.",
+     "s": 36.258,
+     "e": 36.769
+    }
+   ]
+  },
+  {
+   "line": "The camera was the FBI.",
+   "set": "town",
+   "cam": "low",
+   "move": "push",
+   "az": -20,
+   "actors": [
+    {
+     "id": "agent1",
+     "at": [
+      0.6,
+      -1.8
+     ],
+     "expr": "stern"
+    },
+    {
+     "id": "agent2",
+     "at": [
+      1.7,
+      -1.4
+     ],
+     "expr": "stern"
+    }
+   ],
+   "props": [
+    {
+     "kind": "tvcamera",
+     "at": [
+      2.9,
+      -1.0
+     ],
+     "yaw": 200
+    }
+   ],
+   "kick": 0.25,
+   "sfx": [
+    "thud"
+   ],
+   "a": 1112,
+   "b": 1169,
+   "words": [
+    {
+     "w": "The",
+     "s": 37.137,
+     "e": 37.254
+    },
+    {
+     "w": "camera",
+     "s": 37.312,
+     "e": 37.671
+    },
+    {
+     "w": "was",
+     "s": 37.73,
+     "e": 37.834
+    },
+    {
+     "w": "the",
+     "s": 37.88,
+     "e": 37.95
+    },
+    {
+     "w": "FBI.",
+     "s": 37.997,
+     "e": 38.682
+    }
+   ]
+  },
+  {
+   "line": "In August 2001, a hundred agents made arrests across the country.",
+   "set": "square",
+   "cam": "wide",
+   "move": "push",
+   "crowd": [
+    {
+     "outfit": "police",
+     "n": 20,
+     "cols": 5,
+     "at": [
+      0,
+      5
+     ],
+     "to": [
+      0,
+      -3
+     ],
+     "mode": "march",
+     "expr": "stern"
+    }
+   ],
+   "focus": [
+    0,
+    -1
+   ],
+   "sfx": [
+    "crowd"
+   ],
+   "a": 1169,
+   "b": 1294,
+   "words": [
+    {
+     "w": "In",
+     "s": 39.037,
+     "e": 39.176
+    },
+    {
+     "w": "August",
+     "s": 39.223,
+     "e": 39.513
+    },
+    {
+     "w": "2001,",
+     "s": 39.559,
+     "e": 40.418
+    },
+    {
+     "w": "a",
+     "s": 40.442,
+     "e": 40.476
+    },
+    {
+     "w": "hundred",
+     "s": 40.604,
+     "e": 40.894
+    },
+    {
+     "w": "agents",
+     "s": 40.941,
+     "e": 41.289
+    },
+    {
+     "w": "made",
+     "s": 41.347,
+     "e": 41.498
+    },
+    {
+     "w": "arrests",
+     "s": 41.533,
+     "e": 41.835
+    },
+    {
+     "w": "across",
+     "s": 41.87,
+     "e": 42.172
+    },
+    {
+     "w": "the",
+     "s": 42.206,
+     "e": 42.276
+    },
+    {
+     "w": "country.",
+     "s": 42.311,
+     "e": 42.833
+    }
+   ]
+  },
+  {
+   "line": "More than fifty people were convicted, over tens of millions in prizes.",
+   "set": "room",
+   "cam": "medium",
+   "move": "pull",
+   "actors": [
+    {
+     "id": "cousin",
+     "at": [
+      -1.6,
+      -2.6
+     ],
+     "expr": "pained"
+    },
+    {
+     "id": "buddy",
+     "at": [
+      -0.5,
+      -2.8
+     ],
+     "expr": "dazed"
+    },
+    {
+     "id": "sailor",
+     "at": [
+      0.6,
+      -2.7
+     ],
+     "expr": "nervous"
+    },
+    {
+     "id": "guard",
+     "at": [
+      1.8,
+      -2.2
+     ],
+     "expr": "stern"
+    }
+   ],
+   "fx": [
+    {
+     "kind": "stars",
+     "on": "buddy",
+     "at": 0.2,
+     "dur": 0.8
+    }
+   ],
+   "sfx": [
+    "hammer"
+   ],
+   "a": 1294,
+   "b": 1430,
+   "words": [
+    {
+     "w": "More",
+     "s": 43.195,
+     "e": 43.357
+    },
+    {
+     "w": "than",
+     "s": 43.38,
+     "e": 43.508
+    },
+    {
+     "w": "fifty",
+     "s": 43.624,
+     "e": 43.972
+    },
+    {
+     "w": "people",
+     "s": 44.042,
+     "e": 44.298
+    },
+    {
+     "w": "were",
+     "s": 44.321,
+     "e": 44.46
+    },
+    {
+     "w": "convicted,",
+     "s": 44.495,
+     "e": 45.145
+    },
+    {
+     "w": "over",
+     "s": 45.308,
+     "e": 45.528
+    },
+    {
+     "w": "tens",
+     "s": 45.609,
+     "e": 46.004
+    },
+    {
+     "w": "of",
+     "s": 46.051,
+     "e": 46.109
+    },
+    {
+     "w": "millions",
+     "s": 46.19,
+     "e": 46.538
+    },
+    {
+     "w": "in",
+     "s": 46.585,
+     "e": 46.643
+    },
+    {
+     "w": "prizes.",
+     "s": 46.701,
+     "e": 47.351
+    }
+   ]
+  },
+  {
+   "line": "So for years, the only sure way to win McDonald's Monopoly... was to know a guy.",
+   "set": "town",
+   "cam": "medium",
+   "light": "golden",
+   "move": "push",
+   "actors": [
+    {
+     "id": "jerry",
+     "at": [
+      0,
+      -2
+     ],
+     "expr": "neutral",
+     "beats": [
+      {
+       "at": 0.72,
+       "expr": "grin"
+      }
+     ]
+    }
+   ],
+   "props": [
+    {
+     "kind": "briefcase",
+     "at": [
+      0.6,
+      -1.8
+     ]
+    }
+   ],
+   "a": 1430,
+   "b": 1606,
+   "words": [
+    {
+     "w": "So",
+     "s": 47.729,
+     "e": 47.88
+    },
+    {
+     "w": "for",
+     "s": 47.949,
+     "e": 48.065
+    },
+    {
+     "w": "years,",
+     "s": 48.147,
+     "e": 48.553
+    },
+    {
+     "w": "the",
+     "s": 48.576,
+     "e": 48.669
+    },
+    {
+     "w": "only",
+     "s": 48.75,
+     "e": 48.959
+    },
+    {
+     "w": "sure",
+     "s": 49.017,
+     "e": 49.226
+    },
+    {
+     "w": "way",
+     "s": 49.261,
+     "e": 49.377
+    },
+    {
+     "w": "to",
+     "s": 49.412,
+     "e": 49.458
+    },
+    {
+     "w": "win",
+     "s": 49.517,
+     "e": 49.633
+    },
+    {
+     "w": "McDonald's",
+     "s": 49.679,
+     "e": 50.155
+    },
+    {
+     "w": "Monopoly...",
+     "s": 50.19,
+     "e": 50.875
+    },
+    {
+     "w": "was",
+     "s": 51.188,
+     "e": 51.351
+    },
+    {
+     "w": "to",
+     "s": 51.397,
+     "e": 51.455
+    },
+    {
+     "w": "know",
+     "s": 51.513,
+     "e": 51.653
+    },
+    {
+     "w": "a",
+     "s": 51.711,
+     "e": 51.734
+    },
+    {
+     "w": "guy.",
+     "s": 51.78,
+     "e": 52.21
+    }
+   ]
+  }
+ ],
+ "total": 1606
+}

@@ -53,6 +53,8 @@ export type Episode = {
   cast: Record<string, CastSpec>;
   scenes: Scene[];
   total?: number;                // frames, filled by voice.py
+  captions?: boolean;            // burned-in word captions (default on)
+  tts?: "kokoro" | "elevenlabs"; voice_settings?: Record<string, number | string>;
 };
 
 export const clamp01 = (x: number) => Math.max(0, Math.min(1, x));

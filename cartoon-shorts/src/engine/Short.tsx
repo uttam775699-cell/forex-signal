@@ -13,6 +13,7 @@ import { LensBlur } from "./lensblur";
 import { GradeEffect, GRADES, GRADE_STRENGTH, gradeFor } from "./grade";
 import { Episode, sceneAt } from "./episode";
 import { dofAt } from "./camera";
+import { Captions } from "./Captions";
 
 const makeBloom = () => {
   const b = new BloomEffect({ blendFunction: BlendFunction.ADD, intensity: 0.5, luminanceThreshold: 1.0, luminanceSmoothing: 0.2, mipmapBlur: true, levels: 6, radius: 0.6 });
@@ -71,6 +72,7 @@ export const Short: React.FC<{ episode: Episode }> = ({ episode }) => {
         </ThreeCanvas>
       </AbsoluteFill>
       {flash > 0 && <AbsoluteFill style={{ background: "#ffffff", opacity: flash }} />}
+      {episode.captions !== false && <Captions ep={episode} />}
     </AbsoluteFill>
   );
 };

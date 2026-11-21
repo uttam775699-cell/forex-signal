@@ -154,6 +154,40 @@ export const addProp = (b: Batch, kind: string, x: number, z: number, yaw = 0, s
     case "anvil": b.add(boxGeo(V(-0.5, 0, -0.2), V(0.5, 0.75, 0.2)), M.iron(), m(0, 0, 0)); break;
     case "sack": b.add(new THREE.SphereGeometry(0.4, 12, 10).scale(1, 1.3, 0.9).translate(0, 0.5, 0), M.canvas(), m(0, 0, 0)); break;
     case "pumpkin": b.add(new THREE.SphereGeometry(0.4, 14, 10).scale(1, 0.75, 1).translate(0, 0.3, 0), lam("pumpkin", () => ({ color: "#e8842c" })), m(0, 0, 0)); break;
+    case "check": { // giant novelty prize check on two legs (no text: big painted dollar sign + scribble line)
+      const tex = ctex("bigCheck", 512, 256, (g) => {
+        g.fillStyle = "#f4f1e4"; g.fillRect(0, 0, 512, 256);
+        g.strokeStyle = "#2f8a4f"; g.lineWidth = 14; g.strokeRect(10, 10, 492, 236);
+        g.fillStyle = "#2f8a4f"; g.font = "bold 150px sans-serif"; g.fillText("$", 40, 180);
+        g.strokeStyle = "#3a3a46"; g.lineWidth = 7; g.lineCap = "round";
+        for (const [y, w] of [[90, 260], [150, 300], [205, 200]]) { g.beginPath(); g.moveTo(170, y); g.lineTo(170 + w, y); g.stroke(); }
+        g.strokeStyle = "#1f3f8a"; g.lineWidth = 6; g.beginPath(); g.moveTo(330, 222); g.bezierCurveTo(360, 190, 380, 240, 410, 205); g.bezierCurveTo(430, 185, 450, 230, 480, 210); g.stroke();
+      });
+      b.add(boxGeo(V(-1.3, 0.9, -0.03), V(1.3, 2.2, 0.03)), lam("checkFace", () => ({ map: tex })), m(0, 0, 0));
+      for (const sx of [-0.9, 0.9]) b.add(boxGeo(V(sx - 0.04, 0, -0.04), V(sx + 0.04, 0.95, 0.04)), M.wood(), m(0, 0, 0));
+      break;
+    }
+    case "tvcamera":
+      for (const a of [0, 2.1, 4.2]) b.add(new THREE.CylinderGeometry(0.025, 0.025, 1.5, 6).translate(0, 0.75, 0).rotateZ(0.22).rotateY(a), M.iron(), m(0, 0, 0));
+      b.add(boxGeo(V(-0.22, 1.35, -0.35), V(0.22, 1.75, 0.35)), lam("camBody", () => ({ color: "#2b2d36" })), m(0, 0, 0));
+      b.add(new THREE.CylinderGeometry(0.11, 0.13, 0.35, 14).rotateX(Math.PI / 2).translate(0, 1.55, 0.5), M.iron(), m(0, 0, 0));
+      b.add(new THREE.SphereGeometry(0.06, 10, 8).translate(0.1, 1.82, -0.2), lam("camRed", () => ({ color: "#e0382f" })), m(0, 0, 0));
+      break;
+    case "van":
+      b.add(boxGeo(V(-1.0, 0.45, -2.4), V(1.0, 2.4, 1.2), 1), lam("vanBody", () => ({ color: "#e8e4da" })), m(0, 0, 0));
+      b.add(boxGeo(V(-0.98, 0.45, 1.2), V(0.98, 1.7, 2.2)), lam("vanBody", () => ({ color: "#e8e4da" })), m(0, 0, 0));
+      b.add(boxGeo(V(-0.9, 1.15, 2.2), V(0.9, 1.6, 2.23)), lam("pane", () => ({ color: "#cfe6ff" })), m(0, 0, 0));
+      for (const [wx, wz] of [[-0.95, -1.5], [0.95, -1.5], [-0.95, 1.5], [0.95, 1.5]]) b.add(new THREE.CylinderGeometry(0.42, 0.42, 0.25, 16).rotateZ(Math.PI / 2), lam("tire", () => ({ color: "#26262e" })), m(wx, 0.42, wz));
+      b.add(boxGeo(V(-1.01, 1.2, -2.0), V(1.01, 1.6, 0.6)), lam("vanStripe", () => ({ color: "#c8323a" })), m(0, 0, 0));
+      break;
+    case "briefcase":
+      b.add(boxGeo(V(-0.25, 0, -0.08), V(0.25, 0.36, 0.08)), lam("case", () => ({ color: "#6b4a2f" })), m(0, 0, 0));
+      b.add(boxGeo(V(-0.08, 0.36, -0.02), V(0.08, 0.42, 0.02)), M.iron(), m(0, 0, 0));
+      break;
+    case "safe":
+      b.add(boxGeo(V(-0.5, 0, -0.45), V(0.5, 1.2, 0.45)), lam("safeBody", () => ({ color: "#4a5a6a" })), m(0, 0, 0));
+      b.add(new THREE.CylinderGeometry(0.15, 0.15, 0.06, 18).rotateX(Math.PI / 2).translate(0.1, 0.65, 0.47), M.cope(), m(0, 0, 0));
+      break;
     case "stall":
       b.add(boxGeo(V(-1.5, 0, -0.6), V(1.5, 1.0, 0.6), 1), M.beam(), m(0, 0, 0));
       for (const sx of [-1.4, 1.4]) b.add(boxGeo(V(sx - 0.05, 1.0, -0.55), V(sx + 0.05, 2.5, -0.45)), M.wood(), m(0, 0, 0));

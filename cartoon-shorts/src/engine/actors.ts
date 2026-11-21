@@ -137,7 +137,7 @@ export const outfitOf = (c: CastSpec | undefined, v = 0): Outfit => {
   const o: Outfit = { ...base, skin: SKINS[(c?.skin ?? v) % 4] };
   if (c?.outfit === "townsman" || c?.outfit === "crowd") o.jacket = COATS[v % 6];
   if (c?.build) o.build = c.build;
-  for (const k of ["hair", "jacket", "pants", "dress", "moustache"] as const) if (c?.[k]) (o as Record<string, unknown>)[k] = c[k];
+  for (const k of ["hair", "jacket", "pants", "dress", "moustache"] as const) if (c && k in c) (o as Record<string, unknown>)[k] = c[k] || undefined;
   if (c && "hat" in c) o.hat = c.hat ?? null;
   if (o.hat === "hair" && !o.hair) o.hair = "#3a2a1a";
   if (o.hat === "cap" && !o.cap) o.cap = "#5a4a3a";
